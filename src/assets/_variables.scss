@@ -1,0 +1,51 @@
+:root {
+  --color-primary: #499557;
+  --color-primary-hover: #418949;
+  --color-primary-light: #71b657;
+
+  --color-secondary: #6aab76;
+  --color-secondary-hover: #65986f;
+
+  --color-third-light: #849e63;
+  --color-third-hover: #687b50;
+  --color-third-lighter: #849e63;
+
+  --color-forth-primary: #99b576;
+  --color-forth-hover: #799655;
+
+  --color-border-primary: #008847;
+  --color-background-gray: rgba(0, 0, 0, 0.54);
+
+  --color-gray: rgba(0, 0, 0, 0.04);
+  --color-gray-light: #acafb2;
+  --color-gray-lighter: #dadada;
+  --color-gray-dark: #495057;
+  --color-gray-darker: #rgba(0, 0, 0, 0.87);
+
+  --color-font-primary: rgb(44, 62, 93);
+  
+  --new: #499557;
+  --new-hover: #418949;
+  --new-secondary: #71b657;
+  --new-filter: saturate(150%) hue-rotate(25deg) brightness(92%);
+  --new-filter-hover: brightness(90%);
+  --new-banner: #6aab76;
+  --new-banner-hover: #65986f;
+  --traditional-filter: none;
+  --traditional-filter-hover: none;
+  --traditional-secondary: #8aad67;
+  --traditional: #849e63;
+  --traditional-hover: #687b50;
+  --traditional-banner: #99b576;
+  --traditional-banner-hover: #799655;
+  --primary: var(--new);
+  --secondary: var(--new-secondary);
+  --primary-hover: var(--new-hover);
+  --image-filter: var(--new-filter);
+  --image-filter-hover: var(--new-filter-hover);
+  --banner: var(--new-banner);
+  --banner-hover: var(--new-banner-hover);
+  --default-font: Lato, sans-serif;
+
+  --default-hover: rgba(0, 0, 0, 0.04);
+}
