@@ -13,7 +13,9 @@
   --color-forth-primary: #99b576;
   --color-forth-hover: #799655;
 
-  --color-border-primary: #008847;
+  --color-background-primary: #008847;
+  --color-background-secondary: rgb(241, 241, 241);
+  --color-background-third:  rgb(224, 224, 224);
   --color-background-gray: rgba(0, 0, 0, 0.54);
 
   --color-gray: rgba(0, 0, 0, 0.04);
@@ -23,29 +25,32 @@
   --color-gray-darker: #rgba(0, 0, 0, 0.87);
 
   --color-font-primary: rgb(44, 62, 93);
-  
-  --new: #499557;
-  --new-hover: #418949;
-  --new-secondary: #71b657;
-  --new-filter: saturate(150%) hue-rotate(25deg) brightness(92%);
-  --new-filter-hover: brightness(90%);
-  --new-banner: #6aab76;
-  --new-banner-hover: #65986f;
-  --traditional-filter: none;
-  --traditional-filter-hover: none;
-  --traditional-secondary: #8aad67;
-  --traditional: #849e63;
-  --traditional-hover: #687b50;
-  --traditional-banner: #99b576;
-  --traditional-banner-hover: #799655;
-  --primary: var(--new);
-  --secondary: var(--new-secondary);
-  --primary-hover: var(--new-hover);
-  --image-filter: var(--new-filter);
-  --image-filter-hover: var(--new-filter-hover);
-  --banner: var(--new-banner);
-  --banner-hover: var(--new-banner-hover);
-  --default-font: Lato, sans-serif;
+  --color-font-secondary: rgb(37, 37, 37);
+  --color-font-white: rgb(255, 255, 255);
 
-  --default-hover: rgba(0, 0, 0, 0.04);
+  --color-hover-primary: rgba(0, 0, 0, 0.04);
+  
+  // --new: #499557;
+  // --new-hover: #418949;
+  // --new-secondary: #71b657;
+  // --new-filter: saturate(150%) hue-rotate(25deg) brightness(92%);
+  // --new-filter-hover: brightness(90%);
+  // --new-banner: #6aab76;
+  // --new-banner-hover: #65986f;
+  // --traditional-filter: none;
+  // --traditional-filter-hover: none;
+  // --traditional-secondary: #8aad67;
+  // --traditional: #849e63;
+  // --traditional-hover: #687b50;
+  // --traditional-banner: #99b576;
+  // --traditional-banner-hover: #799655;
+  // --primary: var(--new);
+  // --secondary: var(--new-secondary);
+  // --primary-hover: var(--new-hover);
+  // --image-filter: var(--new-filter);
+  // --image-filter-hover: var(--new-filter-hover);
+  // --banner: var(--new-banner);
+  // --banner-hover: var(--new-banner-hover);
+  // --default-font: Lato, sans-serif;
+
 }

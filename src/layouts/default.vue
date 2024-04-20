@@ -12,6 +12,8 @@
 
       <div :class="$style.layoutContentRoute">
         <RouterView />
+
+        <Footer />
       </div>
     </div>
   </div>

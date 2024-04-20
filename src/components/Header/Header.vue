@@ -4,13 +4,13 @@ import logo from '@/assets/images/quillbot-logo.png'
 
 <template>
   <div :class="$style.headerWrapper">
-    <a :class="$style.headerLogoWrapper" href="/">
+    <div :class="$style.headerLogoWrapper" href="/">
       <button :class="$style.headerLogoBtn">
         <i class="fa-solid fa-bars" :class="$style.headerIcon" />
       </button>
 
       <img :src="logo" alt="QuillBot Logo" :class="$style.headerLogoImage">
-    </a>
+    </div>
 
     <div :class="$style.headerTitleWrapper">
       <p :class="$style.headerTitle">
@@ -19,27 +19,17 @@ import logo from '@/assets/images/quillbot-logo.png'
     </div>
 
     <div :class="$style.headerAccountWrapper">
-      <el-dropdown trigger="click">
-        <el-button>
-          <i class="fa-solid fa-list-ul" :class="$style.headerIcon" />
-        </el-button>
+      <button :class="$style.headerBtnWrapper">
+        <i class="fa-regular fa-gem" :class="$style.headerIcon" />
 
-        <template #dropdown>
-          <HeaderService />
-        </template>
-      </el-dropdown>
+        <p :class="$style.headerContent">
+          Update to Premium
+        </p>
+      </button>
 
-      <el-dropdown trigger="click">
-        <el-button>
-          <div class="block" :class="$style.headerAvatar">
-            <el-avatar :size="32" />
-          </div>
-        </el-button>
+      <img src="https://assets.quillbot.com/images/American.svg" alt="Language picker" :class="$style.headerAvatar">
 
-        <template #dropdown>
-          <HeaderAccount />
-        </template>
-      </el-dropdown>
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbNn4d_lU3UW7qa9LBZXxD9VKVCwTq-2wESi364DCN5g&s" alt="Language picker" :class="$style.headerAvatar">
     </div>
   </div>
 </template>
@@ -102,6 +92,22 @@ import logo from '@/assets/images/quillbot-logo.png'
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  min-width: 64px;
+  padding: 6px 16px;
+  background-color: var(--color-primary);
+  color: var(--color-font-white);
+  border-radius: 24px;
+
+  &:hover {
+    background-color: var(--color-background-primary)
+  }
+}
+
+.headerContent {
+  line-height: 20px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .headerAccountWrapper  {
@@ -109,19 +115,23 @@ import logo from '@/assets/images/quillbot-logo.png'
   align-items: center;
   justify-content:center;
   gap: 8px;
+  padding-right: 15px;
 }
 
 .headerAvatar {
-  width: 48px;
-  height: 48px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .headerIcon {
-  color: #444746;
+  color: var(--color-font-white);
   font-size: 16px;
   background-color: transparent;
+  margin-right: 6px;
+  margin-top: 2px;
 }
 </style>
