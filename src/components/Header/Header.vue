@@ -5,10 +5,6 @@ import logo from '@/assets/images/quillbot-logo.png'
 <template>
   <div :class="$style.headerWrapper">
     <div :class="$style.headerLogoWrapper" href="/">
-      <button :class="$style.headerLogoBtn">
-        <i class="fa-solid fa-bars" :class="$style.headerIcon" />
-      </button>
-
       <img :src="logo" alt="QuillBot Logo" :class="$style.headerLogoImage">
     </div>
 
@@ -20,7 +16,7 @@ import logo from '@/assets/images/quillbot-logo.png'
 
     <div :class="$style.headerAccountWrapper">
       <button :class="$style.headerBtnWrapper">
-        <i class="fa-regular fa-gem" :class="$style.headerIcon" />
+        <i class="fa-regular fa-gem" :class="[$style.headerIcon, $style.headerBtnIcon]" />
 
         <p :class="$style.headerContent">
           Update to Premium
@@ -55,6 +51,14 @@ import logo from '@/assets/images/quillbot-logo.png'
     min-height: 24px;
     padding: 8px;
     margin: 8px 12px 8px 8px;
+    border-radius: 50%;
+    display: flex;
+    justify-content:center;
+    align-items:center;
+
+    &:hover {
+    background-color: var(--color-hover-primary);
+    }
 }
 
 .headerLogoImage {
@@ -104,6 +108,7 @@ import logo from '@/assets/images/quillbot-logo.png'
 }
 
 .headerContent {
+  color: var(--color-font-white);
   line-height: 20px;
   text-align: center;
   font-size: 14px;
@@ -128,10 +133,19 @@ import logo from '@/assets/images/quillbot-logo.png'
 }
 
 .headerIcon {
-  color: var(--color-font-white);
   font-size: 16px;
   background-color: transparent;
   margin-right: 6px;
   margin-top: 2px;
+}
+
+.headerBtnIcon {
+  color: var(--color-font-white);
+}
+
+.headerBarIcon {
+  &:hover {
+    background-color: var(--color-hover-primary);
+  }
 }
 </style>

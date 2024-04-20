@@ -33,7 +33,6 @@
 .layoutContentRoute {
     background-color: #ffffff;
     border-radius: 30px;
-    padding: 30px;
     flex: 1 1 auto;
 }
 </style>
