@@ -44,6 +44,7 @@ import logo from '@/assets/images/quillbot-logo.png'
   justify-content: flex-start;
   flex: 0 0 155px;
   padding-left: 5px;
+  height: 54px;
 }
 
 .headerLogoBtn {
