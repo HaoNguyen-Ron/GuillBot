@@ -1,7 +1,8 @@
 :root {
-  --color-primary: #499557;
+  --color-primary: #499557; //73, 149, 87
   --color-primary-hover: #418949;
   --color-primary-light: #71b657;
+  
   --color-secondary: #6aab76;
   --color-secondary-hover: #65986f;
 
@@ -14,18 +15,18 @@
 
   --color-background-primary: #008847;
   --color-background-secondary: rgb(241, 241, 241);
-  --color-background-third:  rgb(224, 224, 224);
-  --color-background-gray: rgba(0, 0, 0, 0.54);
+  --color-background-third:  rgb(225, 225, 225);
+  --color-background-forth:  #ffffff;
 
   --color-gray: rgba(0, 0, 0, 0.04);
   --color-gray-light: #acafb2;
   --color-gray-lighter: #dadada;
   --color-gray-dark: #495057;
-  --color-gray-darker: rgba(0, 0, 0, 0.87);
 
   --color-font-primary: rgb(44, 62, 93);
   --color-font-secondary: rgb(37, 37, 37);
   --color-font-third: rgba(0, 0, 0, 0.87);
+  --color-font-forth: #252525;
   --color-font-white: rgb(255, 255, 255);
 
   --color-hover-primary: rgba(0, 0, 0, 0.04);

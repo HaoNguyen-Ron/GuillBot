@@ -1,10 +1,11 @@
-<script setup lang="ts">
-
+<script setup>
+import logo from '@/assets/images/gg-chrome.png'
 </script>
 
 <template>
-  <div>
-    <h1>Hello World</h1>
-
-  </div>
+  <Paraphraser />
 </template>
+
+<style lang="scss" module>
+  
+</style>

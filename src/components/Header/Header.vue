@@ -10,7 +10,7 @@ import logo from '@/assets/images/quillbot-logo.png'
 
     <div :class="$style.headerTitleWrapper">
       <p :class="$style.headerTitle">
-        Citation generator
+        Paraphraser
       </p>
     </div>
 

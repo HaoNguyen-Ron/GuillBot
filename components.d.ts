@@ -11,6 +11,7 @@ declare module 'vue' {
     Header: typeof import('./src/components/Header/Header.vue')['default']
     HeaderAccount: typeof import('./src/components/Header/HeaderAccount/HeaderAccount.vue')['default']
     HeaderLanguagePicker: typeof import('./src/components/Header/HeaderLanguagePicker/HeaderLanguagePicker.vue')['default']
+    Paraphraser: typeof import('./src/components/Body/Paraphraser/Paraphraser.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./src/components/SideBar/SideBar.vue')['default']
