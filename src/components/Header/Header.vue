@@ -3,7 +3,7 @@ import logo from '@/assets/images/quillbot-logo.png'
 </script>
 
 <template>
-  <div :class="$style.headerWrapper">
+  <header :class="$style.headerWrapper">
     <div :class="$style.headerLogoWrapper" href="/">
       <img :src="logo" alt="QuillBot Logo" :class="$style.headerLogoImage">
     </div>
@@ -27,7 +27,7 @@ import logo from '@/assets/images/quillbot-logo.png'
 
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbNn4d_lU3UW7qa9LBZXxD9VKVCwTq-2wESi364DCN5g&s" alt="Language picker" :class="$style.headerAvatar">
     </div>
-  </div>
+  </header>
 </template>
 
 <style lang="scss" module>

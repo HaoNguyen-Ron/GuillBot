@@ -3,12 +3,12 @@
 
 <template>
   <div :class="$style.layoutWrapper">
-    <header :class="$style.layoutHeader">
-      <Header />
-    </header>
+    <Header />
 
     <div :class="$style.layoutBody">
-      <SideBar />
+      <div>
+        <SideBar />
+      </div>
 
       <div :class="$style.layoutContentRoute">
         <RouterView />
@@ -22,7 +22,6 @@
 <style module>
 .layoutWrapper {
   height: 100%;
-  background-color: #F8FAFD;
 }
 
 .layoutBody {
@@ -34,12 +33,6 @@
     background-color: #ffffff;
     border-radius: 30px;
     flex: 1 1 auto;
-}
-
-.layoutHeader {
-  background-color: #ffffff;
-  width: 100%;
-  z-index: 2;
-  border-bottom: 1px solid var(--color-border-primary) ;
+    margin-left: 96px;  
 }
 </style>
