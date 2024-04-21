@@ -23,9 +23,9 @@ import logo from '@/assets/images/quillbot-logo.png'
         </p>
       </button>
 
-      <img src="https://assets.quillbot.com/images/American.svg" alt="Language picker" :class="$style.headerAvatar">
+      <HeaderLanguagePicker />
 
-      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbNn4d_lU3UW7qa9LBZXxD9VKVCwTq-2wESi364DCN5g&s" alt="Language picker" :class="$style.headerAvatar">
+      <HeaderAccount />
     </div>
   </header>
 </template>
@@ -120,7 +120,7 @@ import logo from '@/assets/images/quillbot-logo.png'
   display:flex;
   align-items: center;
   justify-content:center;
-  gap: 8px;
+  gap: 14px;
   padding-right: 15px;
 }
 

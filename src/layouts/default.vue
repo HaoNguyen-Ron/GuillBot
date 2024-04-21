@@ -6,11 +6,9 @@
     <Header />
 
     <div :class="$style.layoutBody">
-      <div>
         <SideBar />
-      </div>
 
-      <div :class="$style.layoutContentRoute">
+      <div id="laybout_body" :class="$style.layoutContentRoute">
         <RouterView />
 
         <Footer />
@@ -33,6 +31,7 @@
     background-color: #ffffff;
     border-radius: 30px;
     flex: 1 1 auto;
-    margin-left: 96px;  
+    margin-left: 96px;
+    position: relative;
 }
 </style>

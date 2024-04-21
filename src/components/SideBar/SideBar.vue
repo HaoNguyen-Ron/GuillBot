@@ -97,12 +97,13 @@ const SIDE_BAR_API = [
     .sideBarCategoryList {
         position: fixed;
         height: 900px;
-        max-width: 96px;
+        width: 96px;
         padding: 8px;
         display: flex;
         flex-direction: column;
         gap: 8px;
         align-items: center;
+        justify-content: flex-start;
     }
 
     .sideBarCategory {
@@ -112,7 +113,7 @@ const SIDE_BAR_API = [
         align-items: center;
         flex-direction: column;
         gap: 4px;
-        padding: 4px 0;
+        padding: 4px 4px;
         border-radius: 3px;
 
         &:hover {
@@ -120,12 +121,13 @@ const SIDE_BAR_API = [
         }
 
         &:active {
-          font-weight: bold;
+          font-weight: 600;
+          background-color: #E8F3EB;
         }
     }
 
     .sideBarDivider {
-      background-color:#a5a5a5;
+      background-color:var(--color-border-primary);
       font-size: 14px;
       line-height: 20.02px;
       height: 1px;
