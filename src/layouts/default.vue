@@ -6,7 +6,7 @@
     <Header />
 
     <div :class="$style.layoutBody">
-        <SideBar />
+      <SideBar />
 
       <div id="laybout_body" :class="$style.layoutContentRoute">
         <RouterView />
