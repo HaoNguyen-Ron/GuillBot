@@ -117,7 +117,7 @@ const SIDE_BAR_API = [
         border-radius: 3px;
 
         &:hover {
-            background-color: var(--color-hover-primary);
+            background-color: var(--color-hover-secondary);
         }
 
         &:active {

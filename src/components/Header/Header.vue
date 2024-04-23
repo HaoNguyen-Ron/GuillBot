@@ -58,7 +58,7 @@ import logo from '@/assets/images/quillbot-logo.png'
     align-items:center;
 
     &:hover {
-    background-color: var(--color-hover-primary);
+    background-color: var(--color-hover-secondary);
     }
 }
 
@@ -146,7 +146,7 @@ import logo from '@/assets/images/quillbot-logo.png'
 
 .headerBarIcon {
   &:hover {
-    background-color: var(--color-hover-primary);
+    background-color: var(--color-hover-secondary);
   }
 }
 </style>

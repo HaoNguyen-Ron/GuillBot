@@ -25,7 +25,7 @@
 <style lang="scss" module>
   .paraphraserLanguageList {
     display: flex;
-
+    max-width: 1300px;
   }
 
   .paraphraserLanguage {
@@ -40,18 +40,18 @@
     box-shadow: rgba(0, 0, 0, 0.1) 4px 2px 20p;
 
     &:hover {
-      background-color: var(--color-hover-primary);
+      background-color: var(--color-hover-secondary);
     }
   }
 
   .paraphraserLanguageAtive {
-    box-shadow: rgba(0, 0, 0, 0.1) 4px 2px 20px;
     background-color: var(--color-background-forth);
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
 
     &:hover {
-      background-color: none;
+     background-color: var(--color-background-forth);
+;
     }
   }
 </style>

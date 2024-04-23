@@ -7,6 +7,9 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    C: typeof import('./src/components/Body/Paraphraser/ParaphraserInput/c.vue')['default']
+    CommonCard: typeof import('./src/components/Common/CommonCard/CommonCard.vue')['default']
+    CommonSettingButton: typeof import('./src/components/Common/CommonSettingButton/CommonSettingButton.vue')['default']
     Footer: typeof import('./src/components/Footer/Footer.vue')['default']
     Header: typeof import('./src/components/Header/Header.vue')['default']
     HeaderAccount: typeof import('./src/components/Header/HeaderAccount/HeaderAccount.vue')['default']
@@ -15,7 +18,10 @@ declare module 'vue' {
     ParaphraserAdvertise: typeof import('./src/components/Body/Paraphraser/ParaphraserAdvertise/ParaphraserAdvertise.vue')['default']
     ParaphraserInput: typeof import('./src/components/Body/Paraphraser/ParaphraserInput/ParaphraserInput.vue')['default']
     ParaphraserLanguage: typeof import('./src/components/Body/Paraphraser/ParaphraserLanguage/ParaphraserLanguage.vue')['default']
+    ParaphraserOption: typeof import('./src/components/Body/Paraphraser/ParaphraserOption/ParaphraserOption.vue')['default']
+    ParaphraserOpton: typeof import('./src/components/Body/Paraphraser/ParaphraserOption/ParaphraserOpton.vue')['default']
     ParaphraserToolLanguage: typeof import('./src/components/Body/Paraphraser/paraphraserLanguage/paraphraserToolLanguage.vue')['default']
+    Premium: typeof import('./src/components/Body/Premium/Premium.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SideBar: typeof import('./src/components/SideBar/SideBar.vue')['default']

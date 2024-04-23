@@ -4,6 +4,8 @@ import logo from '@/assets/images/gg-chrome.png'
 
 <template>
   <Paraphraser />
+
+  <Premium />
 </template>
 
 <style lang="scss" module>

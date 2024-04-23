@@ -279,4 +279,20 @@ const FOOTER_API = [
     .footerTradeMarkLink {
       text-decoration: underline;
     }
+
+    @media screen and (max-width: 1000px) {
+      .footerInfoWrapper {
+        flex-direction: column;
+      }
+      .footerInfoList {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media screen and (max-width: 500px) {
+      .footerInfoList {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 8px;
+      }
+    }
 </style>

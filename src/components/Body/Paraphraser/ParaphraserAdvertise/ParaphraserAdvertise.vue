@@ -1,7 +1,7 @@
 <script setup>
 import logo from '@/assets/images/gg-chrome.png'
 
-const isClosed = true;
+const isClosed = ref(true);
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const isClosed = true;
       Add to Chrome. It's free!
     </button>
 
-    <button @click="isClosed === false">
+    <button @click="isClosed = false">
         <i class="fa-solid fa-x" :class="$style.paraphraserAdIcon"/>
     </button>
 
@@ -92,5 +92,11 @@ const isClosed = true;
     margin-top: 8px;
     flex-shrink: 0;
     flex-grow: 0;
+  }
+
+  @media screen and (max-width: 1000px) {
+    .paraphraserAdvertise {
+      display: none;
+    }
   }
 </style>

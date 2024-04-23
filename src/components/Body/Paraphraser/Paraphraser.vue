@@ -7,10 +7,15 @@
     <div :class="$style.paraphraser">
       <ParaphraserAdvertise />
 
-      <div :class="$style.paraphraserToolWrapper">
+      <div :class="$style.paraphraserBodyWrapper">
         <ParaphraserLanguage />
 
+      <div :class="$style.paraphraserMain">
+        <ParaphraserOption />
+
         <ParaphraserInput />
+        </div>
+
       </div>
     </div>
   </section>
@@ -25,8 +30,12 @@
 
   .paraphraserWrapper {
     background-color: var(--color-background-secondary);
+    max-width: 100%;
   }
 
+  .paraphraserMain {
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 20px 0px;
+  }
   .paraphraserTitle {
     font-size: 16px;
     font-weight: 600;

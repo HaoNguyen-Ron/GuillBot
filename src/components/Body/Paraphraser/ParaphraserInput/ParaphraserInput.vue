@@ -4,154 +4,134 @@
 
 <template>
   <div :class="$style.paraphraserInputWrapper">
-    <div :class="$style.paraphraserInputSetting">
-      <div :class="$style.paraphraserInputModes">
-        <p :class="[$style.paraphraserTitle, $style.paraphraserInputTitle]">
-          Modes:
-        </p>
-
-        <button :class="[$style.paraphraserMode, $style.paraphraserModeActive]">
-          Standard
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Fluency
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Formal
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Academic
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Simple
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Creative
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Expand
-        </button>
-
-        <button :class="$style.paraphraserMode">
-          Shorten
-        </button>
-        <button :class="$style.paraphraserMode">
-          Custom
-        </button>
+    <div :class="$style.paraphraserInputLeft">
+      <div :class="$style.paraphraserInputTop">
+        <textarea id="paraphraser-input-box" placeholder="To rewrite text, enter or paste it here and press &quot;Paraphrase.&quot;" :class="$style.paraphraserInputTextarea" />
       </div>
 
-      <div :class="$style.paraphraserInputSynonyms">
-        <p :class="[$style.paraphraserTitle, $style.paraphraserInputTitle]">
-          Synonyms:
-        </p>
-
-        <div :class="$style.paraphraserTrack">
-          <div :class="$style.paraphraserThumb">
-            <div :class="$style.paraphraserThumbDragger" />
-          </div>
+      <div :class="$style.paraphraserInputBottom">
+        <div :class="$style.paraphraserInputUploadWrapper">
+          <input id="upload" type="file" name="upload" :class="$style.paraphraserInputUpload">
+          <label for="upload" :class="$style.paraphraserInputLabel">
+            <i class="fa-solid fa-cloud-arrow-up" :class="$style.paraphraserInputIcon" />
+            Upload Doc
+          </label>
         </div>
 
-        <div :class="$style.paraphraserTrackPremium">
-          <div :class="$style.paraphraserPremiumTrack" />
-          <i class="fa-regular fa-gem" :class="$style.paraphraserPremiumIcon"/>
-        </div>
+        <button :class="$style.paraphraserInputBtn">
+          Paraphrase
+        </button>
       </div>
     </div>
+
+    <div :class="$style.paraphraserInputRight" />
   </div>
 </template>
 
 <style lang="scss" module>
-      .paraphraserInputWrapper {
-    background-color: var(--color-background-forth);
-  }
-
-  .paraphraserInputTitle {
-    padding: 13px 12px 12px 20px;
-    line-height: 21px;
-  }
-
-  .paraphraserInputSetting {
+  .paraphraserInputWrapper {
     display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--color-border-primary);
+    height: 386px;
+    justify-content:space-between;
+    background-color: var(--color-background-secondary);
   }
 
-  .paraphraserInputModes {
+  .paraphraserInputLeft {
+    flex: 1 1 296px;
+    background-color: white;
+    border-right: 3px solid var(--color-border-primary);
+  }
+
+  .paraphraserInputRight {
+    flex: 1 1 296px;
+    background-color: white;
+  }
+
+  .paraphraserInputTop {
+    padding: 20px 36px 8px 20px;
+  }
+
+  .paraphraserInputBottom {
+    padding: 0 15px;
+    flex: 1 1 auto;
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+
   }
 
-  .paraphraserMode {
-    padding: 13px 9px;
-    flex-shrink: 0;
-    flex-grow: 0;
-    line-height: 20px;
+  .paraphraserInputTextarea {
+    width: 100%;
+    height: 300px;
+    border: none;
     font-size: 16px;
-    line-height: 20px;
-    color: var(--color-font-third);
-  }
-  .paraphraserModeActive {
-    font-weight: 600;
-    color: var(--color-primary);
-    border-bottom: 2px solid var(--color-primary);
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 400;
+    overflow-wrap: break-word;
+    line-height:32px;
+    text-wrap: wrap;
+    word-break: break-word;
+    align-self: flex-start;
+
+    &::placeholder {
+      font-size: 16px;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 500;
+    }
+
+    &:focus {
+      outline: none;
+    }
   }
 
-  .paraphraserInputSynonyms {
+  .paraphraserInputUploadWrapper {
     display: flex;
-    align-items: center;
   }
 
-  .paraphraserTrack {
-    border-radius: 12px;
-    background-color: #bfbfbf;
-    height: 3px;
-    width: 65px;
+  .paraphraserInputUpload {
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    appearance: none;
+    overflow: hidden;
+    cursor: default;
+    text-overflow: ellipsis;
+    white-space: pre;
   }
 
-  .paraphraserThumb {
-    height: 4px;
-    border-radius: 12px;
-    background-color: var(--color-primary);
-    width: 30%;
-    position: relative;
-  }
-
-  .paraphraserThumbDragger {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: var(--color-background-forth);
-    border: 1px solid var(--color-border-primary);
-  }
-
-  .paraphraserTrackPremium {
-    display: flex;
-    align-items: center;
-    margin-left: 2px;
-  }
-  .paraphraserPremiumTrack {
-    border-radius: 12px;
-    background-color:  rgb(37, 37, 37);
-    height: 3px;
-    width: 32px;
-    opacity: 0.5;
-  }
-
-  .paraphraserPremiumIcon {
-    background-color: var(--color-primary);
-    border-radius: 50%;
-    color: var(--color-font-white);
-    padding: 5px;
+  .paraphraserInputLabel {
     font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 16px;
+    user-select: text;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      color: var(--color-primary)
+    }
+  }
+
+  .paraphraserInputIcon {
+    font-size: 20px;
+    line-height: 40px;
+  }
+
+  .paraphraserInputBtn {
+    background-color: var(--color-primary);
+    padding: 5px 25px;
+    border-radius: 25px;
+    font-size: 17.5px;
+    font-weight: 700;
+    line-height: 30px;
+    color: var(--color-font-white);
+    min-height: 40px;
+    min-width: 64px;
+    text-align: center;
+
+    &:hover {
+      background-color: var(--color-hover-primary)
+    }
   }
 </style>

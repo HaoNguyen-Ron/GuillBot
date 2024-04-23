@@ -33,5 +33,6 @@
     flex: 1 1 auto;
     margin-left: 96px;
     position: relative;
+    max-width: 100%;
 }
 </style>
