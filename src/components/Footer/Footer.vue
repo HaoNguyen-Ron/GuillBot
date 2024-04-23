@@ -180,7 +180,7 @@ const FOOTER_API = [
     .footerInfoWrapper {
       display: flex;
       padding: 52px 68px 52px 68px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       justify-content: space-between;
     }
 
