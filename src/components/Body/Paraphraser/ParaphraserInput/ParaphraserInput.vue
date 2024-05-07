@@ -1,12 +1,50 @@
 <script setup>
+import { onMounted, reactive } from 'vue'
+import { fetchParaphrase } from '@/api/openai'
 
+const paraphraseInput = ref('asdasds')
+const position = reactive({
+  x: '',
+  y: '',
+})
+const tooltipVisible = ref(false)
+async function paraphraseText() {
+  try {
+    const paraphrasedText = await fetchParaphrase(paraphraseInput.value, '')
+  }
+  catch (error) {
+    return paraphraseInput.value = 'Error'
+  }
+}
+
+// onMounted(() => {
+//   window.addEventListener('selectionchange', () => {
+//     const selection = getSelection()
+//     if (!selection?.rangeCount || selection.toString().length === 0) {
+//       tooltipVisible.value = false
+
+//       return
+//     }
+
+//     const range = selection.getRangeAt(0)
+
+//     position.value = {
+//       x: range.getBoundingClientRect().right,
+//       y: range.getBoundingClientRect().top,
+//     }
+//   })
+
+//   function handleMouseUp() {
+//     tooltipVisible.value = false
+//   }
+// })
 </script>
 
 <template>
   <div :class="$style.paraphraserInputWrapper">
     <div :class="$style.paraphraserInputLeft">
       <div :class="$style.paraphraserInputTop">
-        <textarea id="paraphraser-input-box" placeholder="To rewrite text, enter or paste it here and press &quot;Paraphrase.&quot;" :class="$style.paraphraserInputTextarea" />
+        <textarea id="paraphraser-input-box" v-model="paraphraseInput" placeholder="To rewrite text, enter or paste it here and press &quot;Paraphrase.&quot;" :class="$style.paraphraserInputTextarea" />
       </div>
 
       <div :class="$style.paraphraserInputBottom">
@@ -18,13 +56,28 @@
           </label>
         </div>
 
-        <button :class="$style.paraphraserInputBtn">
+        <button :class="$style.paraphraserInputBtn" @click="paraphraseText">
           Paraphrase
         </button>
       </div>
     </div>
 
-    <div :class="$style.paraphraserInputRight" />
+    <div :class="$style.paraphraserInputRight" contenteditable>
+      <p v-if="paraphrasedText" class="$style.paraphrasedOutput">
+        {{ paraphrasedText }}
+      </p>
+    </div>
+
+    <div
+      id="tooltip"
+      :style="{
+        position: 'fixed',
+        backgroundColor: 'red',
+        width: '20px',
+        height: '20px',
+        pointerEvents: 'none',
+      }"
+    />
   </div>
 </template>
 
