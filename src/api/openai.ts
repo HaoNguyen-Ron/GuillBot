@@ -27,7 +27,8 @@ export const openaiApi = {
         ],
       }),
     })
-    const chatCompletion = await Response.json()
+    // const chatCompletion = await Response.json()
+    // return chatCompletion?.choices?.[0]?.message?.content || ''
   },
 
 }
