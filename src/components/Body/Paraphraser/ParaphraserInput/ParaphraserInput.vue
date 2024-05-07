@@ -1,19 +1,20 @@
 <script setup>
 import { onMounted, reactive } from 'vue'
-import { fetchParaphrase } from '@/api/openai'
+import { openaiApi } from '@/api/openai'
 
-const paraphraseInput = ref('asdasds')
-const position = reactive({
-  x: '',
-  y: '',
-})
-const tooltipVisible = ref(false)
+const paraphraseInput = ref('')
+const paraphrasedText = ref('')
+// const position = reactive({
+//   x: '',
+//   y: '',
+// })
+// const tooltipVisible = ref(false)
 async function paraphraseText() {
   try {
-    const paraphrasedText = await fetchParaphrase(paraphraseInput.value, '')
+    paraphrasedText.value = await openaiApi.getParaphraseFullContent(paraphraseInput.value)
   }
   catch (error) {
-    return paraphraseInput.value = 'Error'
+    return paraphrasedText.value = 'Error'
   }
 }
 
@@ -63,7 +64,7 @@ async function paraphraseText() {
     </div>
 
     <div :class="$style.paraphraserInputRight" contenteditable>
-      <p v-if="paraphrasedText" class="$style.paraphrasedOutput">
+      <p v-if="paraphrasedText" :class="$style.paraphrasedOutput">
         {{ paraphrasedText }}
       </p>
     </div>
@@ -97,6 +98,7 @@ async function paraphraseText() {
   .paraphraserInputRight {
     flex: 1 1 50%;
     background-color: white;
+    padding: 30px 36px 8px 20px;
   }
 
   .paraphraserInputTop {
@@ -186,4 +188,5 @@ async function paraphraseText() {
       background-color: var(--color-hover-primary)
     }
   }
+
 </style>
