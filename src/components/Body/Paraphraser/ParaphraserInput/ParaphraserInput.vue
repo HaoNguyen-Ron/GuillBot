@@ -31,19 +31,18 @@
 <style lang="scss" module>
   .paraphraserInputWrapper {
     display: flex;
-    height: 386px;
     justify-content:space-between;
     background-color: var(--color-background-secondary);
   }
 
   .paraphraserInputLeft {
-    flex: 1 1 296px;
+    flex: 1 1 50%;
     background-color: white;
     border-right: 3px solid var(--color-border-primary);
   }
 
   .paraphraserInputRight {
-    flex: 1 1 296px;
+    flex: 1 1 50%;
     background-color: white;
   }
 
@@ -52,7 +51,7 @@
   }
 
   .paraphraserInputBottom {
-    padding: 0 15px;
+    padding: 8px 15px;
     flex: 1 1 auto;
     display: flex;
     justify-content: space-between;
@@ -61,7 +60,7 @@
 
   .paraphraserInputTextarea {
     width: 100%;
-    height: 300px;
+    height: 368px;
     border: none;
     font-size: 16px;
     font-family: 'Open Sans', sans-serif;

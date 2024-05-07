@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     CommonCard: typeof import('./src/components/Common/CommonCard/CommonCard.vue')['default']
+    CommonPremiumIcon: typeof import('./src/components/Common/CommonPremiumIcon/CommonPremiumIcon.vue')['default']
     CommonSettingButton: typeof import('./src/components/Common/CommonSettingButton/CommonSettingButton.vue')['default']
     Footer: typeof import('./src/components/Footer/Footer.vue')['default']
     Header: typeof import('./src/components/Header/Header.vue')['default']
@@ -15,9 +16,13 @@ declare module 'vue' {
     HeaderLanguagePicker: typeof import('./src/components/Header/HeaderLanguagePicker/HeaderLanguagePicker.vue')['default']
     Paraphraser: typeof import('./src/components/Body/Paraphraser/Paraphraser.vue')['default']
     ParaphraserAdvertise: typeof import('./src/components/Body/Paraphraser/ParaphraserAdvertise/ParaphraserAdvertise.vue')['default']
+    ParaphraserBtnGroup: typeof import('./src/components/Body/Paraphraser/ParaphraserSideBtn/ParaphraserBtnGroup.vue')['default']
+    ParaphraserBtnSeting: typeof import('./src/components/Body/Paraphraser/ParaphraserSideBtn/ParaphraserBtnSeting.vue')['default']
     ParaphraserInput: typeof import('./src/components/Body/Paraphraser/ParaphraserInput/ParaphraserInput.vue')['default']
     ParaphraserLanguage: typeof import('./src/components/Body/Paraphraser/ParaphraserLanguage/ParaphraserLanguage.vue')['default']
     ParaphraserOption: typeof import('./src/components/Body/Paraphraser/ParaphraserOption/ParaphraserOption.vue')['default']
+    ParaphraserSideBtn: typeof import('./src/components/Body/Paraphraser/ParaphraserSideBtn/ParaphraserSideBtn.vue')['default']
+    ParaphraserSideBtnPremium: typeof import('./src/components/Body/Paraphraser/ParaphraserSideBtn/ParaphraserSideBtnPremium.vue')['default']
     Premium: typeof import('./src/components/Body/Premium/Premium.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

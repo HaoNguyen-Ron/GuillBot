@@ -8,14 +8,20 @@
       <ParaphraserAdvertise />
 
       <div :class="$style.paraphraserBodyWrapper">
-        <ParaphraserLanguage />
+        <div :class="$style.paraphraserBodyLeft">
+          <ParaphraserLanguage />
 
-      <div :class="$style.paraphraserMain">
-        <ParaphraserOption />
+          <div :class="$style.paraphraserMain">
+            <ParaphraserOption />
 
-        <ParaphraserInput />
+            <ParaphraserInput />
+          </div>
         </div>
 
+        <div :class="$style.paraphraserBodyRight">
+          <ParaphraserSideBtnPremium />
+          <ParaphraserSideBtn />
+        </div>
       </div>
     </div>
   </section>
@@ -33,8 +39,18 @@
     max-width: 100%;
   }
 
+  .paraphraserBodyWrapper {
+    display: flex;
+    gap: 33px;
+  }
+
   .paraphraserMain {
     box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 20px 0px;
+  }
+
+  .paraphraserMainBottom {
+    display: flex;
+    gap: 33px;
   }
   .paraphraserTitle {
     font-size: 16px;
@@ -42,4 +58,11 @@
     line-height:10px;
   }
 
+  .paraphraserBodyRight {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+  }
 </style>
