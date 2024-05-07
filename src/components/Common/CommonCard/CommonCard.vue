@@ -5,7 +5,7 @@ const props = defineProps({
 </script>
 
 <template>
-    <div v-for="card in cards" :class="$style.CommonCardWrapper" :key="card.id">
+    <div v-for="card in props.cards" :class="$style.CommonCardWrapper" :key="card.id">
       <div :class="$style.CommonCardTitle">
         {{ card.title }}
       </div>

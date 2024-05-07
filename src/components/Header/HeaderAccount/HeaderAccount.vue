@@ -59,8 +59,8 @@ function handleSelect() {
 }
 
 .headerAccountAvatar {
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;

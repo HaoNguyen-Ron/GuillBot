@@ -234,4 +234,12 @@ const PREMIUM_CARD_DETAILS = [
         font-size: 16px;
         color: var(--color-font-primary)
     }
+
+    @media screen and (max-width: 1170px) {
+      .premiumBenefitCards {
+        grid-template-columns: repeat(1, 400px);
+        justify-items: center;
+        align-items: center;
+      }
+    }
 </style>
