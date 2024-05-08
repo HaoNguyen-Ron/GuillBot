@@ -1,23 +1,34 @@
-<script setup>
-import { onMounted, reactive } from 'vue'
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { openaiApi } from '@/api/openai'
 
 const paraphraseInput = ref('')
-const paraphrasedOutput = ref('the new value')
+const paraphraseOutput = ref('the new value')
 
 const tooltipVisible = ref(false)
 
 const tooltipPosition = ref({
-  x: '',
-  y: '',
+  x: 0,
+  y: 0,
 })
 
 async function paraphraseText() {
   try {
-    paraphrasedOutput.value = await openaiApi.getParaphraseFullContent(paraphraseInput.value)
+    paraphraseOutput.value = await openaiApi.getParaphraseFullContent(paraphraseInput.value)
   }
   catch (error) {
-    return paraphrasedOutput.value = 'Error'
+    return paraphraseOutput.value = 'Error'
+  }
+}
+
+async function paraphraseSelection(selection: string) {
+  try {
+    const paraphrasedContent = await openaiApi.getParaphraseFullContent(selection)
+
+    return paraphrasedContent
+  }
+  catch (error) {
+    return paraphraseOutput.value = 'Error'
   }
 }
 
@@ -27,29 +38,47 @@ function handleBlur() {
 
 function handleMouseUp() {
   const selection = window.getSelection()
-  if (selection.toString().length === 0)
+
+  if (!selection?.rangeCount || selection?.toString().length === 0)
     return
 
   tooltipVisible.value = true
+
+  const selectionValue = selection.toString()
+
+  const range = selection.getRangeAt(0)
+
+  paraphraseSelection(selectionValue)
+    .then((newParaphrase: string) => {
+      range.deleteContents()
+
+      const nodifyNewParaphrase = document.createRange().createContextualFragment(newParaphrase) // Convert string to DOM fragment
+
+      const span = document.createElement('span')
+
+      span.appendChild(nodifyNewParaphrase)
+
+      range.insertNode(span)
+    })
+    .catch((error) => {
+      console.error(error)
+    })
 }
 
 onMounted(() => {
-  window.addEventListener('selectionchange', () => {
+  document.addEventListener('selectionchange', () => {
     const selection = window.getSelection()
 
     if (!selection?.rangeCount || selection.toString().length === 0) {
-      tooltipPosition.value = false
+      tooltipVisible.value = false
 
       return
     }
-
     const range = selection.getRangeAt(0)
 
     const boundingRect = range.getBoundingClientRect()
 
-    console.log('««««« boundingRect »»»»»', boundingRect)
-
-    tooltipPvalue = {
+    tooltipPosition.value = {
       x: boundingRect.right,
       y: boundingRect.top,
     }
@@ -67,6 +96,7 @@ onMounted(() => {
       <div :class="$style.paraphraserInputBottom">
         <div :class="$style.paraphraserInputUploadWrapper">
           <input id="upload" type="file" name="upload" :class="$style.paraphraserInputUpload">
+
           <label for="upload" :class="$style.paraphraserInputLabel">
             <i class="fa-solid fa-cloud-arrow-up" :class="$style.paraphraserInputIcon" />
             Upload Doc
@@ -86,8 +116,8 @@ onMounted(() => {
       @blur="handleBlur"
       @mouseup="handleMouseUp"
     >
-      <p v-if="paraphrasedOutput" :class="$style.paraphrasedOutput">
-        {{ paraphrasedOutput }}
+      <p v-if="paraphraseOutput" :class="$style.paraphraseOutput">
+        {{ paraphraseOutput }}
       </p>
     </div>
 
@@ -100,8 +130,8 @@ onMounted(() => {
         width: '20px',
         height: '20px',
         pointerEvents: 'none',
-        left: `${tooltipPosition.x} px`,
-        top: `${tooltipPosition.y} px`,
+        left: `${tooltipPosition.x}px`,
+        top: `${tooltipPosition.y}px`,
       }"
     />
   </div>
