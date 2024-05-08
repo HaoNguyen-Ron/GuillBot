@@ -3,42 +3,58 @@ import { onMounted, reactive } from 'vue'
 import { openaiApi } from '@/api/openai'
 
 const paraphraseInput = ref('')
-const paraphrasedText = ref('')
-// const position = reactive({
-//   x: '',
-//   y: '',
-// })
-// const tooltipVisible = ref(false)
+const paraphrasedOutput = ref('the new value')
+
+const tooltipVisible = ref(false)
+
+const tooltipPosition = ref({
+  x: '',
+  y: '',
+})
+
 async function paraphraseText() {
   try {
-    paraphrasedText.value = await openaiApi.getParaphraseFullContent(paraphraseInput.value)
+    paraphrasedOutput.value = await openaiApi.getParaphraseFullContent(paraphraseInput.value)
   }
   catch (error) {
-    return paraphrasedText.value = 'Error'
+    return paraphrasedOutput.value = 'Error'
   }
 }
 
-// onMounted(() => {
-//   window.addEventListener('selectionchange', () => {
-//     const selection = getSelection()
-//     if (!selection?.rangeCount || selection.toString().length === 0) {
-//       tooltipVisible.value = false
+function handleBlur() {
+  tooltipVisible.value = false
+}
 
-//       return
-//     }
+function handleMouseUp() {
+  const selection = window.getSelection()
+  if (selection.toString().length === 0)
+    return
 
-//     const range = selection.getRangeAt(0)
+  tooltipVisible.value = true
+}
 
-//     position.value = {
-//       x: range.getBoundingClientRect().right,
-//       y: range.getBoundingClientRect().top,
-//     }
-//   })
+onMounted(() => {
+  window.addEventListener('selectionchange', () => {
+    const selection = window.getSelection()
 
-//   function handleMouseUp() {
-//     tooltipVisible.value = false
-//   }
-// })
+    if (!selection?.rangeCount || selection.toString().length === 0) {
+      tooltipPosition.value = false
+
+      return
+    }
+
+    const range = selection.getRangeAt(0)
+
+    const boundingRect = range.getBoundingClientRect()
+
+    console.log('««««« boundingRect »»»»»', boundingRect)
+
+    tooltipPvalue = {
+      x: boundingRect.right,
+      y: boundingRect.top,
+    }
+  })
+})
 </script>
 
 <template>
@@ -63,13 +79,20 @@ async function paraphraseText() {
       </div>
     </div>
 
-    <div :class="$style.paraphraserInputRight" contenteditable>
-      <p v-if="paraphrasedText" :class="$style.paraphrasedOutput">
-        {{ paraphrasedText }}
+    <div
+      id="bounding"
+      :class="$style.paraphraserInputRight"
+      contenteditable
+      @blur="handleBlur"
+      @mouseup="handleMouseUp"
+    >
+      <p v-if="paraphrasedOutput" :class="$style.paraphrasedOutput">
+        {{ paraphrasedOutput }}
       </p>
     </div>
 
     <div
+      v-if="tooltipVisible"
       id="tooltip"
       :style="{
         position: 'fixed',
@@ -77,6 +100,8 @@ async function paraphraseText() {
         width: '20px',
         height: '20px',
         pointerEvents: 'none',
+        left: `${tooltipPosition.x} px`,
+        top: `${tooltipPosition.y} px`,
       }"
     />
   </div>
@@ -188,5 +213,4 @@ async function paraphraseText() {
       background-color: var(--color-hover-primary)
     }
   }
-
 </style>
