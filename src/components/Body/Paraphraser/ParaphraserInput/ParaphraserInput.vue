@@ -3,7 +3,7 @@ import { onMounted, ref } from 'vue'
 import { openaiApi } from '@/api/openai'
 
 const paraphraseInput = ref('')
-const paraphraseOutput = ref('the new value')
+const paraphraseOutput = ref('')
 
 const tooltipVisible = ref(false)
 
