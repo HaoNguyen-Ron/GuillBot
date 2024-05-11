@@ -5,7 +5,7 @@ import { openaiApi } from '@/api/openai'
 const paraphraseInput = ref('')
 const paraphraseOutput = ref('')
 
-const tooltipVisible = ref(false)
+const outPutRef = ref<HTMLElement>()
 
 type SelectionStatus = 'initial' | 'tooltip' | 'popover'
 
@@ -16,6 +16,11 @@ let selection: Selection | null = null
 const replaceContent = ref('')
 
 const tooltipPosition = ref({
+  x: 0,
+  y: 0,
+})
+
+const mousePosition = ref({
   x: 0,
   y: 0,
 })
@@ -40,70 +45,88 @@ async function paraphraseSelection(selection: string) {
   }
 }
 
-function handleBlur() {
-  // tooltipVisible.value = false
-  if (selection?.anchorNode && selection?.focusNode)
+function reselectElement() {
+  if (!selection?.anchorNode || !selection?.focusNode)
     return
-  const newRange = document.createRange()
 
-  newRange.
+  const range = document.createRange()
+
+  range.setStart(selection?.anchorNode, selection?.anchorOffset || 0)
+  range.setEnd(selection?.focusNode, selection?.focusOffset || 0)
+
+  selection.removeAllRanges()
+  selection.addRange(range)
+}
+
+function handleBlur() {
+  if(outPutRef.value && checkMouseInElement(outPutRef.value))
+  reselectElement()
 }
 
 function handleMouseUp() {
-  const selection = window.getSelection()
+  selection = window.getSelection()
 
-  if (!selection?.rangeCount || selection?.toString().length === 0)
+  if (selection?.toString().length === 0)
     return
 
-  tooltipVisible.value = true
-
-  const selectionValue = selection.toString()
-
-  paraphraseSelection(selectionValue)
-    .then((newParaphrase: string) => {
-      // range.deleteContents()
-      replaceContent.value = newParaphrase
-      // const nodifyNewParaphrase = document.createRange().createContextualFragment(newParaphrase) // Convert string to DOM fragment
-
-      // const span = document.createElement('span')
-
-      // span.appendChild(nodifyNewParaphrase)
-
-      // range.insertNode(span)
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  status.value = 'tooltip'
 }
 
 function handleClickReplace() {
-  const selection = window.getSelection()
-
   if (!selection?.rangeCount || selection?.toString().length === 0)
     return
-
-  tooltipVisible.value = true
 
   const range = selection.getRangeAt(0)
 
   range.deleteContents()
 
   range.insertNode(document.createTextNode(replaceContent.value))
+
+  replaceContent.value = ''
+
+  status.value = 'initial'
+
+  selection = null
 }
 
 function handleOpenPopover() {
   status.value = 'popover'
+
+  selection = window.getSelection()
+
+  if (!selection?.rangeCount || selection?.toString().length === 0)
+    return
+
+  const selectionValue = selection.toString()
+
+  paraphraseSelection(selectionValue)
+    .then((newParaphrase: string) => {
+      console.log('««««« newParaphrase »»»»»', newParaphrase)
+      replaceContent.value = newParaphrase
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
+function checkMouseInElement(element: HTMLElement) {
+  const elementRect = element.getBoundingClientRect()
+
+  return (
+    mousePosition.value.x >= elementRect.left
+    && mousePosition.value.x <= elementRect.right
+    && mousePosition.value.y >= elementRect.top
+    && mousePosition.value.y <= elementRect.bottom
+  )
 }
 
 onMounted(() => {
   document.addEventListener('selectionchange', () => {
-    const selection = window.getSelection()
+    selection = window.getSelection()
 
-    if (!selection?.rangeCount || selection.toString().length === 0) {
-      tooltipVisible.value = false
-
+    if (!selection?.rangeCount || selection.toString().length === 0)
       return
-    }
+
     const range = selection.getRangeAt(0)
 
     const boundingRect = range.getBoundingClientRect()
@@ -112,6 +135,11 @@ onMounted(() => {
       x: boundingRect.right,
       y: boundingRect.top,
     }
+  })
+
+  document.addEventListener('mousemove', (e) => {
+    mousePosition.value.x = e.clientX
+    mousePosition.value.y = e.clientY
   })
 })
 </script>
@@ -140,7 +168,7 @@ onMounted(() => {
     </div>
 
     <div
-      id="bounding"
+      ref="outPutRef"
       :class="$style.paraphraserInputRight"
       contenteditable
       @blur="handleBlur"
@@ -152,30 +180,32 @@ onMounted(() => {
     </div>
 
     <div
-      v-if="status = 'tooltip'"
+      v-if="status === 'tooltip'"
       id="tooltip"
       :style="{
         position: 'fixed',
+        color: 'white',
         backgroundColor: 'red',
-        width: '20px',
-        height: '20px',
-        pointerEvents: 'none',
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,
+        cursor: 'pointer',
+        padding: '8px',
+        borderRadius: '90px',
       }"
       @click="handleOpenPopover"
-    />
+    >
+      Paraphrase
+    </div>
 
     <div
-      v-else-if="status = 'popover'"
-      id="tooltip"
+      v-else-if="status === 'popover'"
+      id="popover"
       :style="{
         position: 'fixed',
         backgroundColor: '#dddd',
         border: '1px solid red',
         width: '200px',
         height: '200px',
-        pointerEvents: 'none',
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,
       }"
