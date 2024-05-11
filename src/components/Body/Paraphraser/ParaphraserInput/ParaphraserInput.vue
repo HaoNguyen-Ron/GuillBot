@@ -7,6 +7,14 @@ const paraphraseOutput = ref('')
 
 const tooltipVisible = ref(false)
 
+type SelectionStatus = 'initial' | 'tooltip' | 'popover'
+
+const status = ref<SelectionStatus>('initial')
+
+let selection: Selection | null = null
+
+const replaceContent = ref('')
+
 const tooltipPosition = ref({
   x: 0,
   y: 0,
@@ -33,7 +41,12 @@ async function paraphraseSelection(selection: string) {
 }
 
 function handleBlur() {
-  tooltipVisible.value = false
+  // tooltipVisible.value = false
+  if (selection?.anchorNode && selection?.focusNode)
+    return
+  const newRange = document.createRange()
+
+  newRange.
 }
 
 function handleMouseUp() {
@@ -46,23 +59,40 @@ function handleMouseUp() {
 
   const selectionValue = selection.toString()
 
-  const range = selection.getRangeAt(0)
-
   paraphraseSelection(selectionValue)
     .then((newParaphrase: string) => {
-      range.deleteContents()
+      // range.deleteContents()
+      replaceContent.value = newParaphrase
+      // const nodifyNewParaphrase = document.createRange().createContextualFragment(newParaphrase) // Convert string to DOM fragment
 
-      const nodifyNewParaphrase = document.createRange().createContextualFragment(newParaphrase) // Convert string to DOM fragment
+      // const span = document.createElement('span')
 
-      const span = document.createElement('span')
+      // span.appendChild(nodifyNewParaphrase)
 
-      span.appendChild(nodifyNewParaphrase)
-
-      range.insertNode(span)
+      // range.insertNode(span)
     })
     .catch((error) => {
       console.error(error)
     })
+}
+
+function handleClickReplace() {
+  const selection = window.getSelection()
+
+  if (!selection?.rangeCount || selection?.toString().length === 0)
+    return
+
+  tooltipVisible.value = true
+
+  const range = selection.getRangeAt(0)
+
+  range.deleteContents()
+
+  range.insertNode(document.createTextNode(replaceContent.value))
+}
+
+function handleOpenPopover() {
+  status.value = 'popover'
 }
 
 onMounted(() => {
@@ -122,7 +152,7 @@ onMounted(() => {
     </div>
 
     <div
-      v-if="tooltipVisible"
+      v-if="status = 'tooltip'"
       id="tooltip"
       :style="{
         position: 'fixed',
@@ -133,7 +163,29 @@ onMounted(() => {
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,
       }"
+      @click="handleOpenPopover"
     />
+
+    <div
+      v-else-if="status = 'popover'"
+      id="tooltip"
+      :style="{
+        position: 'fixed',
+        backgroundColor: '#dddd',
+        border: '1px solid red',
+        width: '200px',
+        height: '200px',
+        pointerEvents: 'none',
+        left: `${tooltipPosition.x}px`,
+        top: `${tooltipPosition.y}px`,
+      }"
+    >
+      {{ replaceContent }}
+
+      <button style="padding: 10px; border-radius: 15px; background-color: green; color: white;" @click="handleClickReplace">
+        Apply
+      </button>
+    </div>
   </div>
 </template>
 
