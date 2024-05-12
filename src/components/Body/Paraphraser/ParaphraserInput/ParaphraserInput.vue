@@ -2,18 +2,26 @@
 import { onMounted, ref } from 'vue'
 import { openaiApi } from '@/api/openai'
 
+import pop from '@/assets/images/pop.png'
+import close from '@/assets/images/close.png'
+import refresh from '@/assets/images/refresh.png'
+import left from '@/assets/images/chevron-left.png'
+import right from '@/assets/images/chevron-right.png'
+import apply from '@/assets/images/apply.png'
+
 const paraphraseInput = ref('')
 const paraphraseOutput = ref('')
 
 const outPutRef = ref<HTMLElement>()
+const popoverRef = ref<HTMLElement>()
+
+const replaceContent = ref('')
 
 type SelectionStatus = 'initial' | 'tooltip' | 'popover'
 
 const status = ref<SelectionStatus>('initial')
 
 let selection: Selection | null = null
-
-const replaceContent = ref('')
 
 const tooltipPosition = ref({
   x: 0,
@@ -59,8 +67,8 @@ function reselectElement() {
 }
 
 function handleBlur() {
-  if(outPutRef.value && checkMouseInElement(outPutRef.value))
-  reselectElement()
+  if (outPutRef.value && checkMouseInElement(outPutRef.value))
+    reselectElement()
 }
 
 function handleMouseUp() {
@@ -89,7 +97,7 @@ function handleClickReplace() {
   selection = null
 }
 
-function handleOpenPopover() {
+async function handleOpenPopover() {
   status.value = 'popover'
 
   selection = window.getSelection()
@@ -99,14 +107,14 @@ function handleOpenPopover() {
 
   const selectionValue = selection.toString()
 
-  paraphraseSelection(selectionValue)
-    .then((newParaphrase: string) => {
-      console.log('««««« newParaphrase »»»»»', newParaphrase)
-      replaceContent.value = newParaphrase
-    })
-    .catch((error) => {
-      console.error(error)
-    })
+  try {
+    const newParaphrase = await paraphraseSelection(selectionValue)
+    replaceContent.value = newParaphrase
+  }
+
+  catch (error) {
+    console.error(error)
+  }
 }
 
 function checkMouseInElement(element: HTMLElement) {
@@ -169,7 +177,7 @@ onMounted(() => {
 
     <div
       ref="outPutRef"
-      :class="$style.paraphraserInputRight"
+      :class="$style.paraphraserOutPutRight"
       contenteditable
       @blur="handleBlur"
       @mouseup="handleMouseUp"
@@ -182,15 +190,11 @@ onMounted(() => {
     <div
       v-if="status === 'tooltip'"
       id="tooltip"
+      :class="$style.paraphraserTooltip"
       :style="{
         position: 'fixed',
-        color: 'white',
-        backgroundColor: 'red',
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,
-        cursor: 'pointer',
-        padding: '8px',
-        borderRadius: '90px',
       }"
       @click="handleOpenPopover"
     >
@@ -198,23 +202,67 @@ onMounted(() => {
     </div>
 
     <div
-      v-else-if="status === 'popover'"
-      id="popover"
+      v-if="status === 'popover'"
+      ref="popoverRef"
       :style="{
         position: 'fixed',
-        backgroundColor: '#dddd',
-        border: '1px solid red',
-        width: '200px',
-        height: '200px',
         left: `${tooltipPosition.x}px`,
         top: `${tooltipPosition.y}px`,
       }"
+      :class="$style.paraphraserOutPutWrapper"
     >
-      {{ replaceContent }}
+      <div :class="$style.paraphraserOutPutHeader">
+        <img :src="pop" alt="S-pop icon" style="width: 32px; height: 32px;">
 
-      <button style="padding: 10px; border-radius: 15px; background-color: green; color: white;" @click="handleClickReplace">
-        Apply
-      </button>
+        <span :class="$style.paraphraserOutPutTitle">S-Group Paraphraser</span>
+
+        <button style="margin-left: auto;" @click="status = 'initial'">
+          <img :src="close" alt="S-pop icon" style="width: 24px; height: 24px" >
+        </button>
+      </div>
+
+      <div :class="$style.paraphraserOutPutMain">
+        <div :class="$style.paraphraserOutPutActions">
+          <div :class="$style.paraphraserAction">
+            <button :class="$style.paraphraserActionBtn">
+              <img :src="refresh" alt="S-icon" style="width: 18px; height: 18px">
+            </button>
+
+            <span :class="$style.paraphraserDesc">Refresh</span>
+          </div>
+
+          <div :class="$style.paraphraserAction">
+            <button :class="$style.paraphraserActionBtn">
+              <img :src="left" alt="S-icon" style="width: 18px; height: 18px">
+            </button>
+
+            <span :class="$style.paraphraserDesc">1/1</span>
+
+            <button :class="$style.paraphraserActionBtn">
+              <img :src="right" alt="S-icon" style="width: 18px; height: 18px">
+            </button>
+          </div>
+        </div>
+
+        <div :class="$style.paraphraserOutPutResult">
+          <p :class="$style.paraphraserContent">
+            {{ replaceContent }}
+          </p>
+        </div>
+      </div>
+
+      <div :class="$style.paraphraserOutPutFooter">
+        <button :class="$style.paraphraserOutPutBtn">
+          Copy
+        </button>
+
+        <button @click="handleClickReplace"  :class="[$style.paraphraserOutPutBtn, $style.paraphraserBtnPrimary]">
+          <img :src="apply" alt="S-icon" style="width: 24px; height: 24px">
+          <span :class="$style.paraphraserBtnContent">Apply</span>
+        </button>
+
+      </div>
+
     </div>
   </div>
 </template>
@@ -232,7 +280,7 @@ onMounted(() => {
     border-right: 3px solid var(--color-border-primary);
   }
 
-  .paraphraserInputRight {
+  .paraphraserOutPutRight {
     flex: 1 1 50%;
     background-color: white;
     padding: 30px 36px 8px 20px;
@@ -324,5 +372,121 @@ onMounted(() => {
     &:hover {
       background-color: var(--color-hover-primary)
     }
+  }
+
+  .paraphraserTooltip {
+    background-color: #ffffff;
+    color: #555555;
+    cursor: pointer;
+    padding: 8px;
+    border: 1px solid #555555;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    border-radius: 90px;
+    font-weight: 700;
+  }
+
+  .paraphraserOutPutWrapper {
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 480px;
+    box-shadow: 0px 6px 12px 0px #0000002E;
+    padding: 12px 12px 8px 12px;
+    border-radius: 12px
+  }
+
+  .paraphraserOutPutHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .paraphraserOutPutTitle {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 22px;
+    text-align: left;
+  }
+
+  .paraphraserOutPutMain {
+    display: flex;
+    flex-direction: column;
+    padding: 0 16px;
+  }
+
+  .paraphraserOutPutActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .paraphraserAction {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .paraphraserActionBtn {
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .paraphraserDesc {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 17px;
+    text-align: left;
+    color: #A9A9A9;
+    user-select: none;
+  }
+
+  .paraphraserOutPutResult {
+    padding: 12px;
+    border-radius: 10px;
+    background: #F8F8F8;
+    min-height: 120px;
+    overflow-y: auto;
+  }
+
+  .paraphraserContent {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: left;
+    color: #555555;
+  }
+
+  .paraphraserOutPutFooter {
+    padding: 0 16px 16px 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .paraphraserOutPutBtn {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px 8px 12px;
+    border-radius: 40px;
+    border: 1px solid #DADCE0;
+    height: 36px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    text-align: left;
+  }
+
+  .paraphraserBtnPrimary {
+    background: #4643DD;
+    color: #ffffff;
+  }
+
+  .paraphraserBtnContent {
+    padding: 0 4px;
   }
 </style>
