@@ -48,6 +48,11 @@
     box-shadow: rgba(0, 0, 0, 0.2) 0px 20px 20px 0px;
   }
 
+  .paraphraserBodyLeft {
+    position: relative;
+    z-index: 3;
+  }
+
   .paraphraserMainBottom {
     display: flex;
     gap: 33px;
