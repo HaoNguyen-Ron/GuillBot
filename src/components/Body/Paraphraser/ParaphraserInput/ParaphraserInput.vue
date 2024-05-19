@@ -221,6 +221,7 @@ onMounted(() => {
 
         <button style="margin-left: auto;" @click="status = 'initial'">
           <img :src="close" alt="S-pop icon" style="width: 24px; height: 24px">
+          <img :src="close" alt="S-pop icon" style="width: 24px; height: 24px">
         </button>
       </div>
 
