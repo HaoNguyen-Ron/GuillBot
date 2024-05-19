@@ -8,12 +8,14 @@ import refresh from '@/assets/images/refresh.png'
 import left from '@/assets/images/chevron-left.png'
 import right from '@/assets/images/chevron-right.png'
 import apply from '@/assets/images/apply.png'
+import logo from '@/assets/images/logo-sgroup.png'
 
 const paraphraseInput = ref('')
 const paraphraseOutput = ref('')
 
 const outPutRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
+const tooltipRef = ref<HTMLElement>()
 
 const replaceContent = ref('')
 
@@ -75,20 +77,20 @@ function handleMouseUp() {
   selection = window.getSelection()
 
   if (selection?.toString().length === 0)
-    return
+    return status.value = 'initial'
 
   status.value = 'tooltip'
 }
 
-function handleClickReplace() {
-  if (!selection?.rangeCount || selection?.toString().length === 0)
+function handleClickApply() {
+  if (!selection?.rangeCount)
     return
 
-  const range = selection.getRangeAt(0)
+  const range = selection?.getRangeAt(0)
 
-  range.deleteContents()
+  range?.deleteContents()
 
-  range.insertNode(document.createTextNode(replaceContent.value))
+  range?.insertNode(document.createTextNode(replaceContent.value))
 
   replaceContent.value = ''
 
@@ -190,6 +192,7 @@ onMounted(() => {
     <div
       v-if="status === 'tooltip'"
       id="tooltip"
+      ref="tooltipRef"
       :class="$style.paraphraserTooltip"
       :style="{
         position: 'fixed',
@@ -198,7 +201,7 @@ onMounted(() => {
       }"
       @click="handleOpenPopover"
     >
-      Paraphrase
+      <img :src="logo" alt="S-paraphraser icon" style="width: 20px; height: 20px;">
     </div>
 
     <div
@@ -217,7 +220,7 @@ onMounted(() => {
         <span :class="$style.paraphraserOutPutTitle">S-Group Paraphraser</span>
 
         <button style="margin-left: auto;" @click="status = 'initial'">
-          <img :src="close" alt="S-pop icon" style="width: 24px; height: 24px" >
+          <img :src="close" alt="S-pop icon" style="width: 24px; height: 24px">
         </button>
       </div>
 
@@ -256,13 +259,11 @@ onMounted(() => {
           Copy
         </button>
 
-        <button @click="handleClickReplace"  :class="[$style.paraphraserOutPutBtn, $style.paraphraserBtnPrimary]">
+        <button :class="[$style.paraphraserOutPutBtn, $style.paraphraserBtnPrimary]" @click="handleClickApply">
           <img :src="apply" alt="S-icon" style="width: 24px; height: 24px">
           <span :class="$style.paraphraserBtnContent">Apply</span>
         </button>
-
       </div>
-
     </div>
   </div>
 </template>
