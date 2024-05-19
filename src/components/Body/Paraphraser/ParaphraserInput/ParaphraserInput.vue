@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
+import { computePosition, flip, offset } from '@floating-ui/dom'
 import { openaiApi } from '@/api/openai'
 
 import pop from '@/assets/images/pop.png'
@@ -25,15 +26,65 @@ const status = ref<SelectionStatus>('initial')
 
 let selection: Selection | null = null
 
-const tooltipPosition = ref({
-  x: 0,
-  y: 0,
+const rect = ref(new DOMRect())
+const childRects = ref < Array<DOMRect>>([])
+
+const virtualElement = ref({
+  getBoundingClientRect() {
+    return rect.value
+  },
+  getClientRect() {
+    return childRects.value
+  },
 })
 
 const mousePosition = ref({
   x: 0,
   y: 0,
 })
+
+async function attachTooltipFloating() {
+  if (tooltipRef.value) {
+    const { x, y, strategy } = await computePosition(
+      virtualElement.value,
+      tooltipRef.value,
+      {
+        strategy: 'fixed',
+        placement: 'right-end',
+        middleware: [
+          flip(),
+          offset({
+            mainAxis: 4,
+          }),
+        ],
+      },
+    )
+
+    tooltipRef.value.style.position = strategy
+    tooltipRef.value.style.left = `${x}px`
+    tooltipRef.value.style.top = `${y}px`
+  }
+}
+
+async function attachPopoverFloating() {
+  if (popoverRef.value) {
+    const { x, y, strategy } = await computePosition(
+      virtualElement.value,
+      popoverRef.value,
+      {
+        strategy: 'fixed',
+        placement: 'right-end',
+        middleware: [
+          flip(),
+        ],
+      },
+    )
+
+    popoverRef.value.style.position = strategy
+    popoverRef.value.style.left = `${x}px`
+    popoverRef.value.style.top = `${y}px`
+  }
+}
 
 async function paraphraseText() {
   try {
@@ -69,17 +120,28 @@ function reselectElement() {
 }
 
 function handleBlur() {
-  if (outPutRef.value && checkMouseInElement(outPutRef.value))
+  if ((outPutRef.value && checkMouseInElement(outPutRef.value))
+    || (popoverRef.value && checkMouseInElement(popoverRef.value))
+    || (popoverRef.value && checkMouseInElement(popoverRef.value))
+  ) {
     reselectElement()
+  }
+
+  else {
+    status.value = 'initial'
+    replaceContent.value = ''
+  }
 }
 
-function handleMouseUp() {
-  selection = window.getSelection()
+function checkMouseInElement(element: HTMLElement) {
+  const elementRect = element.getBoundingClientRect()
 
-  if (selection?.toString().length === 0)
-    return status.value = 'initial'
-
-  status.value = 'tooltip'
+  return (
+    mousePosition.value.x >= elementRect.left
+    && mousePosition.value.x <= elementRect.right
+    && mousePosition.value.y >= elementRect.top
+    && mousePosition.value.y <= elementRect.bottom
+  )
 }
 
 function handleClickApply() {
@@ -97,6 +159,15 @@ function handleClickApply() {
   status.value = 'initial'
 
   selection = null
+}
+
+function handleMouseUp() {
+  if (selection?.toString().length === 0)
+    return status.value = 'initial'
+
+  status.value = 'tooltip'
+
+  nextTick(attachTooltipFloating)
 }
 
 async function handleOpenPopover() {
@@ -117,17 +188,8 @@ async function handleOpenPopover() {
   catch (error) {
     console.error(error)
   }
-}
 
-function checkMouseInElement(element: HTMLElement) {
-  const elementRect = element.getBoundingClientRect()
-
-  return (
-    mousePosition.value.x >= elementRect.left
-    && mousePosition.value.x <= elementRect.right
-    && mousePosition.value.y >= elementRect.top
-    && mousePosition.value.y <= elementRect.bottom
-  )
+  nextTick(attachPopoverFloating)
 }
 
 onMounted(() => {
@@ -139,12 +201,8 @@ onMounted(() => {
 
     const range = selection.getRangeAt(0)
 
-    const boundingRect = range.getBoundingClientRect()
-
-    tooltipPosition.value = {
-      x: boundingRect.right,
-      y: boundingRect.top,
-    }
+    rect.value = range.getBoundingClientRect()
+    childRects.value = Array.from(range.getClientRects())
   })
 
   document.addEventListener('mousemove', (e) => {
@@ -187,31 +245,25 @@ onMounted(() => {
       <p v-if="paraphraseOutput" :class="$style.paraphraseOutput">
         {{ paraphraseOutput }}
       </p>
+
+      
     </div>
 
+    <!-------------------------------------- tooltip and popover ----------------------------->
     <div
       v-if="status === 'tooltip'"
       id="tooltip"
       ref="tooltipRef"
       :class="$style.paraphraserTooltip"
-      :style="{
-        position: 'fixed',
-        left: `${tooltipPosition.x}px`,
-        top: `${tooltipPosition.y}px`,
-      }"
       @click="handleOpenPopover"
     >
       <img :src="logo" alt="S-paraphraser icon" style="width: 20px; height: 20px;">
     </div>
+    <!----------------------------------->
 
     <div
       v-if="status === 'popover'"
       ref="popoverRef"
-      :style="{
-        position: 'fixed',
-        left: `${tooltipPosition.x}px`,
-        top: `${tooltipPosition.y}px`,
-      }"
       :class="$style.paraphraserOutPutWrapper"
     >
       <div :class="$style.paraphraserOutPutHeader">
@@ -384,6 +436,7 @@ onMounted(() => {
     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
     border-radius: 90px;
     font-weight: 700;
+    z-index: 999;
   }
 
   .paraphraserOutPutWrapper {
