@@ -17,6 +17,7 @@ const paraphraseOutput = ref('')
 const outPutRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
 const tooltipRef = ref<HTMLElement>()
+const inputRef = ref<HTMLInputElement>()
 
 const replaceContent = ref('')
 
@@ -27,7 +28,7 @@ const status = ref<SelectionStatus>('initial')
 let selection: Selection | null = null
 
 const rect = ref(new DOMRect())
-const childRects = ref < Array<DOMRect>>([])
+const childRects = ref < Array<DOMRect> >([])
 
 const virtualElement = ref({
   getBoundingClientRect() {
@@ -42,6 +43,54 @@ const mousePosition = ref({
   x: 0,
   y: 0,
 })
+function getInputRect() {
+  if (!inputRef.value || document.activeElement !== inputRef.value)
+    return 
+
+  let selectionStart = inputRef.value.selectionStart
+  let selectionEnd = inputRef.value.selectionEnd
+
+  if (typeof selectionStart != 'number' || Number.isNaN(selectionStart) || selectionStart < 0)
+    selectionStart = 0
+
+  selectionStart = Math.min(inputRef.value.value.length, Math.max(0, selectionStart))
+
+  if (typeof selectionEnd != 'number' || Number.isNaN(selectionEnd) || selectionEnd < 0)
+    selectionEnd = 0
+
+  selectionEnd = Math.min(inputRef.value.value.length, Math.max(0, selectionEnd))
+
+  const selectedText = inputRef.value.value.substring(selectionStart, selectionEnd);
+
+  rect.value = inputRef.value.getBoundingClientRect()
+
+  const fakeSelectionContainer = document.createElement('div')
+  fakeSelectionContainer.style.position = 'absolute'
+  fakeSelectionContainer.style.top = `${rect.value.top}px`
+  fakeSelectionContainer.style.left = `${rect.value.left}px`
+  fakeSelectionContainer.style.width = `${rect.value.width}px`
+  fakeSelectionContainer.style.height = `${rect.value.height}px`
+  fakeSelectionContainer.textContent = inputRef.value.value
+  fakeSelectionContainer.contentEditable = 'true'
+  document.body.appendChild(fakeSelectionContainer)
+
+  if (!selection?.rangeCount || selection.toString().length === 0)
+      return
+    
+  const range = document.createRange();
+
+  if (!selection?.anchorNode || !selection?.focusNode)
+    return
+
+  range.setStart(selection?.anchorNode, 0);
+  range.setEnd(selection?.anchorNode, selectedText.length);
+
+  selection.removeAllRanges();
+
+  selection.addRange(range);
+
+  rect.value = range.getBoundingClientRect();
+}
 
 async function attachTooltipFloating() {
   if (tooltipRef.value) {
@@ -73,7 +122,7 @@ async function attachPopoverFloating() {
       popoverRef.value,
       {
         strategy: 'fixed',
-        placement: 'right-end',
+        placement: 'bottom-start',
         middleware: [
           flip(),
         ],
@@ -122,7 +171,7 @@ function reselectElement() {
 function handleBlur() {
   if ((outPutRef.value && checkMouseInElement(outPutRef.value))
     || (popoverRef.value && checkMouseInElement(popoverRef.value))
-    || (popoverRef.value && checkMouseInElement(popoverRef.value))
+    || (tooltipRef.value && checkMouseInElement(tooltipRef.value))
   ) {
     reselectElement()
   }
@@ -162,12 +211,22 @@ function handleClickApply() {
 }
 
 function handleMouseUp() {
-  if (selection?.toString().length === 0)
+  selection = window.getSelection()
+
+  if (!selection?.rangeCount || selection.toString().length === 0)
     return status.value = 'initial'
+
+  const range = selection.getRangeAt(0)
+
+  // Update the rect and childRects
+  rect.value = range.getBoundingClientRect()
+  childRects.value = Array.from(range.getClientRects())
 
   status.value = 'tooltip'
 
-  nextTick(attachTooltipFloating)
+  nextTick(() => {
+    attachTooltipFloating()
+  })
 }
 
 async function handleOpenPopover() {
@@ -176,7 +235,7 @@ async function handleOpenPopover() {
   selection = window.getSelection()
 
   if (!selection?.rangeCount || selection?.toString().length === 0)
-    return
+    return status.value = 'initial'
 
   const selectionValue = selection.toString()
 
@@ -236,18 +295,30 @@ onMounted(() => {
     </div>
 
     <div
+      id="outputId"
       ref="outPutRef"
       :class="$style.paraphraserOutPutRight"
       contenteditable
       @blur="handleBlur"
       @mouseup="handleMouseUp"
     >
-      <p v-if="paraphraseOutput" :class="$style.paraphraseOutput">
+      <span v-if="paraphraseOutput" :class="$style.paraphraseOutput">
         {{ paraphraseOutput }}
-      </p>
-
-      
+      </span>
     </div>
+
+    <!-------------------------------------- Input ----------------------------->
+    <p :class="$style.paraphraserOutputLabel">
+      Input:
+      <input
+        id="inputId"
+        ref="inputRef"
+        v-model="paraphraseOutput"
+        type="text"
+        :class="$style.paraphraserInput"
+        @mouseup="getInputRect"
+      >
+    </p>
 
     <!-------------------------------------- tooltip and popover ----------------------------->
     <div
@@ -321,7 +392,7 @@ onMounted(() => {
 </template>
 
 <style lang="scss" module>
-  .paraphraserInputWrapper {
+.paraphraserInputWrapper {
     display: flex;
     justify-content:space-between;
     background-color: var(--color-background-secondary);
@@ -474,6 +545,24 @@ onMounted(() => {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 4px;
+  }
+
+  .paraphraserOutputLabel {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 17px;
+    text-align: left;
+    color: #A9A9A9;
+    user-select: none;
+  }
+
+  .paraphraserInput {
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: left;
+    color: #555555;
   }
 
   .paraphraserAction {
