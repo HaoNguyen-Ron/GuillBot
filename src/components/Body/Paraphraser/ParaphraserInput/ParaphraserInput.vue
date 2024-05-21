@@ -18,6 +18,7 @@ const outPutRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
 const tooltipRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
+const textAreaRef = ref<HTMLTextAreaElement>()
 
 const replaceContent = ref('')
 
@@ -45,7 +46,7 @@ const mousePosition = ref({
 })
 function getInputRect() {
   if (!inputRef.value || document.activeElement !== inputRef.value)
-    return 
+    return
 
   let selectionStart = inputRef.value.selectionStart
   let selectionEnd = inputRef.value.selectionEnd
@@ -60,7 +61,7 @@ function getInputRect() {
 
   selectionEnd = Math.min(inputRef.value.value.length, Math.max(0, selectionEnd))
 
-  const selectedText = inputRef.value.value.substring(selectionStart, selectionEnd);
+  const selectedText = inputRef.value.value.substring(selectionStart, selectionEnd)
 
   rect.value = inputRef.value.getBoundingClientRect()
 
@@ -73,24 +74,9 @@ function getInputRect() {
   fakeSelectionContainer.textContent = inputRef.value.value
   fakeSelectionContainer.contentEditable = 'true'
   document.body.appendChild(fakeSelectionContainer)
-
-  if (!selection?.rangeCount || selection.toString().length === 0)
-      return
-    
-  const range = document.createRange();
-
-  if (!selection?.anchorNode || !selection?.focusNode)
-    return
-
-  range.setStart(selection?.anchorNode, 0);
-  range.setEnd(selection?.anchorNode, selectedText.length);
-
-  selection.removeAllRanges();
-
-  selection.addRange(range);
-
-  rect.value = range.getBoundingClientRect();
 }
+
+
 
 async function attachTooltipFloating() {
   if (tooltipRef.value) {
@@ -218,7 +204,6 @@ function handleMouseUp() {
 
   const range = selection.getRangeAt(0)
 
-  // Update the rect and childRects
   rect.value = range.getBoundingClientRect()
   childRects.value = Array.from(range.getClientRects())
 
@@ -228,6 +213,8 @@ function handleMouseUp() {
     attachTooltipFloating()
   })
 }
+
+
 
 async function handleOpenPopover() {
   status.value = 'popover'
@@ -308,8 +295,7 @@ onMounted(() => {
     </div>
 
     <!-------------------------------------- Input ----------------------------->
-    <p :class="$style.paraphraserOutputLabel">
-      Input:
+    <div :class="$style.paraphraserOutputLabel">
       <input
         id="inputId"
         ref="inputRef"
@@ -317,8 +303,17 @@ onMounted(() => {
         type="text"
         :class="$style.paraphraserInput"
         @mouseup="getInputRect"
+        placeholder="input"
       >
-    </p>
+
+      <textarea 
+      id="textArea" 
+      name="textArea" 
+      ref="textAreaRef"
+      :class="$style.paraphraserTextarea"
+      placeholder="textarea"
+      />
+    </div>
 
     <!-------------------------------------- tooltip and popover ----------------------------->
     <div
@@ -563,6 +558,16 @@ onMounted(() => {
     line-height: 22px;
     text-align: left;
     color: #555555;
+  }
+
+  .paraphraserTextarea {
+    padding: 8px;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 22px;
+    text-align: left;
+    color: #555555;
+    resize: none;
   }
 
   .paraphraserAction {
