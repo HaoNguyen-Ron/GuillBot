@@ -32,8 +32,27 @@ export function getTextareaSelection(element: HTMLElement) {
   return result as GetselectionResult
 }
 
-export function getCaretCharacterOffsetWithin(element) {
-  
+function getCaretCharacterOffsetWithin(element: HTMLElement) {
+  let start = 0
+  let end = 0
+
+  const selection = window.getSelection()
+
+  if (selection?.rangeCount) {
+    const range = selection.getRangeAt(0)
+
+    const preCaretRange = range.cloneRange()
+
+    preCaretRange.selectNodeContents(element)
+
+    preCaretRange.setStart(range.startContainer, range.startOffset)
+    start = preCaretRange.toString().length
+
+    preCaretRange.setEnd(range.endContainer, range.endOffset)
+    end = preCaretRange.toString().length
+  }
+
+  return { start, end }
 }
 
 export function getContentEditableSelection(element: HTMLElement) {
@@ -41,15 +60,22 @@ export function getContentEditableSelection(element: HTMLElement) {
 
   const selection = window.getSelection()
   if (!selection?.rangeCount || selection.toString().length === 0)
-    return
+    return 
 
   const range = selection.getRangeAt(0)
 
+  const {start, end} = getCaretCharacterOffsetWithin(range?.commonAncestorContainer as HTMLElement)
+
+  const cloneSelection = range!.cloneContents()
+
+  const tempDiv = document.createElement('div')
+  tempDiv.appendChild(cloneSelection)
+
   const result = {
-    start: range.startOffset,
-    end: range.endOffset,
-    direction: 'none',
-    text: range.toString(),
+    start,
+    end,
+    direction: 'forward' as const,
+    text: tempDiv.innerHTML|| range?.toString() || tempDiv.textContent || '' 
   }
 
   return result as GetselectionResult

@@ -1,26 +1,26 @@
-import { isInput, isTextarea } from "./utils"
+import { isInput, isTextarea } from './utils'
 
 interface SetSelectionOptions {
-    start: number
-    end: number
-    direction?: 'forward' | 'backward' | 'none'
-    text?: string
+  start: number
+  end: number
+  direction?: 'forward' | 'backward' | 'none'
+  text?: string
 }
 
 export function setInputSelection(element: HTMLElement, option: SetSelectionOptions) {
-    const el = element as HTMLInputElement
-
-    el.setSelectionRange(option.start, option.end, option.direction || 'forward')
-}
-
-export function setTextareaSelection(element: HTMLElement, option: SetSelectionOptions) {
-    const el = element as HTMLTextAreaElement
+  const el = element as HTMLInputElement
 
   el.setSelectionRange(option.start, option.end, option.direction || 'forward')
 }
 
-export function setContentEditableSelection(element: HTMLElement , option: SetSelectionOptions) {
-    
+export function setTextareaSelection(element: HTMLElement, option: SetSelectionOptions) {
+  const el = element as HTMLTextAreaElement
+
+  el.setSelectionRange(option.start, option.end, option.direction || 'forward')
+}
+
+export function setContentEditableSelection(element: HTMLElement, option: SetSelectionOptions) {
+  
 }
 
 export function setNativeSelection() {
