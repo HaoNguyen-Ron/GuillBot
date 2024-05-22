@@ -33,7 +33,7 @@ export function getTextareaSelection(element: HTMLElement) {
 }
 
 export function getCaretCharacterOffsetWithin(element) {
-  
+
 }
 
 export function getContentEditableSelection(element: HTMLElement) {
