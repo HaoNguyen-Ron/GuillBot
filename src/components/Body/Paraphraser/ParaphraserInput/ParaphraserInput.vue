@@ -11,6 +11,8 @@ import right from '@/assets/images/chevron-right.png'
 import apply from '@/assets/images/apply.png'
 import logo from '@/assets/images/logo-sgroup.png'
 
+import { setSelection, getSelection } from '@/core'
+
 const paraphraseInput = ref('')
 const paraphraseOutput = ref('')
 
@@ -44,39 +46,37 @@ const mousePosition = ref({
   x: 0,
   y: 0,
 })
-function getInputRect() {
-  if (!inputRef.value || document.activeElement !== inputRef.value)
-    return
+// function getInputRect() {
+//   if (!inputRef.value || document.activeElement !== inputRef.value)
+//     return
 
-  let selectionStart = inputRef.value.selectionStart
-  let selectionEnd = inputRef.value.selectionEnd
+//   let selectionStart = inputRef.value.selectionStart
+//   let selectionEnd = inputRef.value.selectionEnd
 
-  if (typeof selectionStart != 'number' || Number.isNaN(selectionStart) || selectionStart < 0)
-    selectionStart = 0
+//   if (typeof selectionStart != 'number' || Number.isNaN(selectionStart) || selectionStart < 0)
+//     selectionStart = 0
 
-  selectionStart = Math.min(inputRef.value.value.length, Math.max(0, selectionStart))
+//   selectionStart = Math.min(inputRef.value.value.length, Math.max(0, selectionStart))
 
-  if (typeof selectionEnd != 'number' || Number.isNaN(selectionEnd) || selectionEnd < 0)
-    selectionEnd = 0
+//   if (typeof selectionEnd != 'number' || Number.isNaN(selectionEnd) || selectionEnd < 0)
+//     selectionEnd = 0
 
-  selectionEnd = Math.min(inputRef.value.value.length, Math.max(0, selectionEnd))
+//   selectionEnd = Math.min(inputRef.value.value.length, Math.max(0, selectionEnd))
 
-  const selectedText = inputRef.value.value.substring(selectionStart, selectionEnd)
+//   const selectedText = inputRef.value.value.substring(selectionStart, selectionEnd)
 
-  rect.value = inputRef.value.getBoundingClientRect()
+//   rect.value = inputRef.value.getBoundingClientRect()
 
-  const fakeSelectionContainer = document.createElement('div')
-  fakeSelectionContainer.style.position = 'absolute'
-  fakeSelectionContainer.style.top = `${rect.value.top}px`
-  fakeSelectionContainer.style.left = `${rect.value.left}px`
-  fakeSelectionContainer.style.width = `${rect.value.width}px`
-  fakeSelectionContainer.style.height = `${rect.value.height}px`
-  fakeSelectionContainer.textContent = inputRef.value.value
-  fakeSelectionContainer.contentEditable = 'true'
-  document.body.appendChild(fakeSelectionContainer)
-}
-
-
+//   const fakeSelectionContainer = document.createElement('div')
+//   fakeSelectionContainer.style.position = 'absolute'
+//   fakeSelectionContainer.style.top = `${rect.value.top}px`
+//   fakeSelectionContainer.style.left = `${rect.value.left}px`
+//   fakeSelectionContainer.style.width = `${rect.value.width}px`
+//   fakeSelectionContainer.style.height = `${rect.value.height}px`
+//   fakeSelectionContainer.textContent = inputRef.value.value
+//   fakeSelectionContainer.contentEditable = 'true'
+//   document.body.appendChild(fakeSelectionContainer)
+// }
 
 async function attachTooltipFloating() {
   if (tooltipRef.value) {
@@ -142,16 +142,7 @@ async function paraphraseSelection(selection: string) {
 }
 
 function reselectElement() {
-  if (!selection?.anchorNode || !selection?.focusNode)
-    return
-
-  const range = document.createRange()
-
-  range.setStart(selection?.anchorNode, selection?.anchorOffset || 0)
-  range.setEnd(selection?.focusNode, selection?.focusOffset || 0)
-
-  selection.removeAllRanges()
-  selection.addRange(range)
+  setSelection()
 }
 
 function handleBlur() {
@@ -196,12 +187,15 @@ function handleClickApply() {
   selection = null
 }
 
-function handleMouseUp() {
+function handleMouseUp(element: HTMLElement) {
   selection = window.getSelection()
+
 
   if (!selection?.rangeCount || selection.toString().length === 0)
     return status.value = 'initial'
 
+  getSelection(element)
+  
   const range = selection.getRangeAt(0)
 
   rect.value = range.getBoundingClientRect()
@@ -213,8 +207,6 @@ function handleMouseUp() {
     attachTooltipFloating()
   })
 }
-
-
 
 async function handleOpenPopover() {
   status.value = 'popover'
@@ -287,7 +279,7 @@ onMounted(() => {
       :class="$style.paraphraserOutPutRight"
       contenteditable
       @blur="handleBlur"
-      @mouseup="handleMouseUp"
+      @mouseup="handleMouseUp()"
     >
       <span v-if="paraphraseOutput" :class="$style.paraphraseOutput">
         {{ paraphraseOutput }}
@@ -302,16 +294,16 @@ onMounted(() => {
         v-model="paraphraseOutput"
         type="text"
         :class="$style.paraphraserInput"
-        @mouseup="getInputRect"
         placeholder="input"
+        @mouseup="handleMouseUp(inputRef!)"
       >
 
-      <textarea 
-      id="textArea" 
-      name="textArea" 
-      ref="textAreaRef"
-      :class="$style.paraphraserTextarea"
-      placeholder="textarea"
+      <textarea
+        id="textArea"
+        ref="textAreaRef"
+        name="textArea"
+        :class="$style.paraphraserTextarea"
+        placeholder="textarea"
       />
     </div>
 
