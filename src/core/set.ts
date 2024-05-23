@@ -18,7 +18,6 @@ export function setInputSelection(element: HTMLElement, option: SetSelectionOpti
   const el = element as HTMLInputElement
 
   el.setSelectionRange(option.start, option.end, option.direction || 'forward')
-  el.setSelectionRange(option.start, option.end, option.direction || 'forward')
 }
 
 export function setTextareaSelection(element: HTMLElement, option: SetSelectionOptions) {
