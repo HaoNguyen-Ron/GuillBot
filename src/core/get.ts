@@ -60,11 +60,11 @@ export function getContentEditableSelection(element: HTMLElement) {
 
   const selection = window.getSelection()
   if (!selection?.rangeCount || selection.toString().length === 0)
-    return 
+    return
 
   const range = selection.getRangeAt(0)
 
-  const {start, end} = getCaretCharacterOffsetWithin(range?.commonAncestorContainer as HTMLElement)
+  const { start, end } = getCaretCharacterOffsetWithin(range?.commonAncestorContainer as HTMLElement)
 
   const cloneSelection = range!.cloneContents()
 
@@ -75,7 +75,7 @@ export function getContentEditableSelection(element: HTMLElement) {
     start,
     end,
     direction: 'forward' as const,
-    text: tempDiv.innerHTML|| range?.toString() || tempDiv.textContent || '' 
+    text: tempDiv.innerHTML || range?.toString() || tempDiv.textContent || '',
   }
 
   return result as GetselectionResult
