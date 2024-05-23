@@ -1,4 +1,4 @@
-import { isInput, isTextarea } from './utils'
+import { isInputOrTextarea } from './utils'
 
 interface SetSelectionOptions {
   start: number
@@ -14,15 +14,8 @@ interface TraverseResult {
   endOffset?: number
 }
 
-export function setInputSelection(element: HTMLElement, option: SetSelectionOptions) {
-  const el = element as HTMLInputElement
-
-  el.setSelectionRange(option.start, option.end, option.direction || 'forward')
-  el.setSelectionRange(option.start, option.end, option.direction || 'forward')
-}
-
-export function setTextareaSelection(element: HTMLElement, option: SetSelectionOptions) {
-  const el = element as HTMLTextAreaElement
+export function setSelectionInputOrTextarea(element: HTMLElement, option: SetSelectionOptions) {
+  const el = element as HTMLInputElement | HTMLTextAreaElement
 
   el.setSelectionRange(option.start, option.end, option.direction || 'forward')
 }
@@ -92,10 +85,8 @@ export function setNativeSelection() {
 
 }
 export function setSelection(element: HTMLElement, option: SetSelectionOptions) {
-  if (isInput(element))
-    return setInputSelection(element, option)
-  else if (isTextarea(element))
-    return setTextareaSelection(element, option)
+  if (isInputOrTextarea(element))
+    return setSelectionInputOrTextarea(element, option)
   else
     return setContentEditableSelection(element, option)
 }

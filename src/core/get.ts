@@ -1,35 +1,37 @@
-import { isInput, isTextarea } from './utils'
+import {isInputOrTextarea } from './utils'
 
-interface GetselectionResult {
+export interface GetSelectionResult {
   start: number
   end: number
-  direction: 'forward' | 'backward' | 'none'
+  direction: 'forward' | 'backward' | 'none' | null
   text: string
 }
 
-export function getInputSelection(element: HTMLElement) {
-  const el = element as HTMLInputElement
-
-  const result = {
-    start: el.selectionStart,
-    end: el.selectionEnd,
-    direction: 'none',
-    text: el.value.slice(el.selectionStart || 0, el.selectionEnd || 0),
-  }
-  return result as GetselectionResult
+export interface GetNativeSelectionResult {
+  startNode: Node | null
+  startOffset: number
+  endNode: Node | null
+  endOffset: number
 }
 
-export function getTextareaSelection(element: HTMLElement) {
-  const el = element as HTMLTextAreaElement
-
-  const result = {
-    start: el.selectionStart,
-    end: el.selectionEnd,
+function getDefaultSelection(): GetSelectionResult {
+  return {
+    text: '',
+    start: 0,
+    end: 0,
     direction: 'none',
-    text: el.value.slice(el.selectionStart || 0, el.selectionEnd || 0),
   }
+}
 
-  return result as GetselectionResult
+export function getSelectionInputOrTextarea(element: HTMLElement): GetSelectionResult {
+  const el = element as HTMLTextAreaElement | HTMLInputElement
+
+  return {
+    text: el.value.slice(el.selectionStart || 0, el.selectionEnd || 0),
+    start: el.selectionStart || 0,
+    end: el.selectionEnd || 0,
+    direction: el.selectionDirection,
+  }
 }
 
 function getCaretCharacterOffsetWithin(element: HTMLElement) {
@@ -57,10 +59,10 @@ function getCaretCharacterOffsetWithin(element: HTMLElement) {
 
 export function getContentEditableSelection(element: HTMLElement) {
   getSelection(element)
-
   const selection = window.getSelection()
+
   if (!selection?.rangeCount || selection.toString().length === 0)
-    return
+    return getDefaultSelection()
 
   const range = selection.getRangeAt(0)
 
@@ -78,14 +80,31 @@ export function getContentEditableSelection(element: HTMLElement) {
     text: tempDiv.innerHTML || range?.toString() || tempDiv.textContent || '',
   }
 
-  return result as GetselectionResult
+  return result as GetSelectionResult
 }
 
 export function getSelection(element: HTMLElement) {
-  if (isInput(element))
-    return getInputSelection(element)
-  else if (isTextarea(element))
-    return getTextareaSelection(element)
+  const _element = (element || document.activeElement) as HTMLElement
+
+  if (isInputOrTextarea(_element))
+    return getSelectionInputOrTextarea(_element as HTMLInputElement | HTMLTextAreaElement)
   else
-    return getContentEditableSelection(element)
+    return getContentEditableSelection(_element)
 }
+
+export function getNativeSelection(): GetNativeSelectionResult {
+  const nativeSelection = window.getSelection()!
+
+  const startNode = nativeSelection.anchorNode
+  const startOffset = nativeSelection.anchorOffset
+  const endNode = nativeSelection.focusNode
+  const endOffset = nativeSelection.focusOffset
+
+  return {
+    startNode,
+    startOffset,
+    endNode,
+    endOffset,
+  }
+}
+
