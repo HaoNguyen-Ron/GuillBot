@@ -7,13 +7,6 @@ interface SetSelectionOptions {
   text?: string
 }
 
-interface TraverseResult {
-  startNode?: Node
-  endNode?: Node
-  startOffset?: number
-  endOffset?: number
-}
-
 export function setSelectionInputOrTextarea(element: HTMLElement, option: SetSelectionOptions) {
   const el = element as HTMLInputElement | HTMLTextAreaElement
 
@@ -23,62 +16,50 @@ export function setSelectionInputOrTextarea(element: HTMLElement, option: SetSel
 export function setContentEditableSelection(element: HTMLElement, option: SetSelectionOptions) {
   const selection = window.getSelection()
 
-  if (!selection?.rangeCount)
-    return
+  if (selection) {
+    let charCount = 0
+    let startNode: Node | undefined
+    let startOffset = 0
+    let endNode: Node | undefined
+    let endOffset = 0
 
-  const range = document.createRange()
+    function traverseNodes(node: Node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const nextCharCount = charCount + Number(node.textContent?.length)
 
-  const charCount = { count: 0 }
-  const { startNode, endNode, startOffset, endOffset } = traverseNode(element, option , charCount)
+        if (!startNode && option.start >= charCount && option.start <= nextCharCount) {
+          startNode = node
+          startOffset = option.start - charCount
+        }
 
-  if (startNode && endNode && startOffset !== undefined && endOffset !== undefined) {
-    range.setStart(startNode, startOffset)
-    range.setEnd(endNode, endOffset)
+        if (!endNode && option.end >= charCount && option.end <= nextCharCount) {
+          endNode = node
+          endOffset = option.end - charCount
+        }
 
-    selection.removeAllRanges()
-    selection.addRange(range)
-  }
-}
-
-function traverseNode(node: Node, option: SetSelectionOptions, charCount: { count: number }): TraverseResult {
-  const result: TraverseResult = {}
-
-  if (node.nodeType === Node.TEXT_NODE) {
-    const nextCharCount = charCount.count + (node as Text).length
-
-    if (!result.startNode && option.start >= charCount.count && option.start <= nextCharCount) {
-      result.startNode = node
-      result.startOffset = option.start - charCount.count
-    }
-
-    if (!result.endNode && option.end >= charCount.count && option.end <= nextCharCount) {
-      result.endNode = node
-      result.endOffset = option.end - charCount.count
-    }
-
-    charCount.count = nextCharCount
-  }
-
-  else {
-    for (const childNode of node.childNodes) {
-      const childResult = traverseNode(childNode, option, charCount)
-
-      if (childResult.startNode && !result.startNode) {
-        result.startNode = childResult.startNode
-        result.startOffset = childResult.startOffset
+        charCount = nextCharCount
       }
-
-      if (childResult.endNode && !result.endNode) {
-        result.endNode = childResult.endNode
-        result.endOffset = childResult.endOffset
+      else if (node.nodeType === Node.ELEMENT_NODE) {
+        for (let i = 0; i < node.childNodes.length && !endNode; i++)
+          traverseNodes(node.childNodes[i])
       }
+    }
 
-      if (result.startNode && result.endNode)
-        break
+    traverseNodes(element)
+    const range = document.createRange()
+  
+    if (startNode && endNode && startOffset !== undefined && endOffset !== undefined) {
+      range.setStart(startNode, startOffset)
+      range.setEnd(endNode, endOffset)
+  
+      selection.removeAllRanges()
+      selection.addRange(range)
+
+      return selection.toString()
     }
   }
 
-  return result
+  return ''
 }
 
 export function setNativeSelection() {

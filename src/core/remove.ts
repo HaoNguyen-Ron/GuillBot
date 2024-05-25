@@ -1,23 +1,13 @@
 import { setSelection } from './set'
-import { isInput, isTextarea } from './utils'
+import { isInputOrTextarea } from './utils'
 
 interface RemoveOptions {
   start: number
   end: number
 }
 
-export function removeInputSelection(element: HTMLElement, options: RemoveOptions) {
-  const el = element as HTMLInputElement
-
-  const value = el.value
-
-  const { start, end } = options
-
-  el.value = value.slice(0, start) + value.slice(end)
-}
-
-export function removeTextareaSelection(element: HTMLElement, options: RemoveOptions) {
-  const el = element as HTMLTextAreaElement
+export function removeInputOrTextareaSelection(element: HTMLElement, options: RemoveOptions) {
+  const el = element as HTMLTextAreaElement | HTMLInputElement
 
   const value = el.value
 
@@ -42,10 +32,8 @@ export function removeContentEditableSelection(element: HTMLElement, options: Re
 }
 
 export function removeSelection(element: HTMLElement, options: RemoveOptions) {
-  if (isInput(element))
-    removeInputSelection(element, options)
-  else if (isTextarea(element))
-    removeTextareaSelection(element, options)
+  if (isInputOrTextarea(element))
+    removeInputOrTextareaSelection(element, options)
   else
     removeContentEditableSelection(element, options)
 }

@@ -1,5 +1,5 @@
 import { setContentEditableSelection } from './set'
-import { isInput, isTextarea } from './utils'
+import { isInputOrTextarea } from './utils'
 
 interface ReplaceOptions {
   start: number
@@ -7,18 +7,8 @@ interface ReplaceOptions {
   text: string
 }
 
-export function replaceInputSelection(element: HTMLElement, options: ReplaceOptions) {
-  const el = element as HTMLInputElement
-
-  const value = el.value
-
-  const { start, end, text } = options
-
-  el.value = value.slice(0, start) + text + value.slice(end)
-}
-
-export function replaceTextareaSelection(element: HTMLElement, options: ReplaceOptions) {
-  const el = element as HTMLTextAreaElement
+export function replaceInputOrTextareaSelection(element: HTMLElement, options: ReplaceOptions) {
+  const el = element as HTMLTextAreaElement | HTMLInputElement
 
   const value = el.value
 
@@ -45,10 +35,8 @@ export function replaceContentEditableSelection(element: HTMLElement, options: R
 }
 
 export function replaceSelection(element: HTMLElement, options: ReplaceOptions) {
-  if (isInput(element))
-    replaceInputSelection(element, options)
-  else if (isTextarea(element))
-    replaceTextareaSelection(element, options)
+  if (isInputOrTextarea(element))
+    replaceInputOrTextareaSelection(element, options)
   else
     replaceContentEditableSelection(element, options)
 }
