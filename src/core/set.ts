@@ -29,7 +29,7 @@ export function setContentEditableSelection(element: HTMLElement, option: SetSel
   const range = document.createRange()
 
   const charCount = { count: 0 }
-  const { startNode, endNode, startOffset, endOffset } = traverseNode(element, option , charCount)
+  const { startNode, endNode, startOffset, endOffset } = traverseNode(element, option, charCount)
 
   if (startNode && endNode && startOffset !== undefined && endOffset !== undefined) {
     range.setStart(startNode, startOffset)
