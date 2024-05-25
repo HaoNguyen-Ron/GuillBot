@@ -12,7 +12,7 @@ export function removeInputOrTextareaSelection(element: HTMLElement, options: Re
   const value = el.value
 
   const { start, end } = options
-
+  
   el.value = value.slice(0, start) + value.slice(end)
 }
 

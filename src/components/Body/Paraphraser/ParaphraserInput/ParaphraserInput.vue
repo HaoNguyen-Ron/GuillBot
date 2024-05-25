@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
-import { computePosition, flip, offset } from '@floating-ui/dom'
 import { openaiApi } from '@/api/openai'
 
 import pop from '@/assets/images/pop.png'
@@ -11,18 +10,18 @@ import right from '@/assets/images/chevron-right.png'
 import apply from '@/assets/images/apply.png'
 import logo from '@/assets/images/logo-sgroup.png'
 
-import { setSelection, getSelection } from '@/core'
+import { getSelection, getSelectionRect, setSelection } from '@/core'
+import { attachFloating } from '@/core/floating'
 
 const paraphraseInput = ref('')
 const paraphraseOutput = ref('')
+const replaceContent = ref('')
 
 const outPutRef = ref<HTMLElement>()
 const popoverRef = ref<HTMLElement>()
 const tooltipRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
 const textAreaRef = ref<HTMLTextAreaElement>()
-
-const replaceContent = ref('')
 
 type SelectionStatus = 'initial' | 'tooltip' | 'popover'
 
@@ -35,10 +34,10 @@ const childRects = ref < Array<DOMRect> >([])
 
 const virtualElement = ref({
   getBoundingClientRect() {
-    return rect.value
+    return rect.value || new DOMRect()
   },
-  getClientRect() {
-    return childRects.value
+  getClientRects() {
+    return childRects.value || []
   },
 })
 
@@ -46,80 +45,6 @@ const mousePosition = ref({
   x: 0,
   y: 0,
 })
-// function getInputRect() {
-//   if (!inputRef.value || document.activeElement !== inputRef.value)
-//     return
-
-//   let selectionStart = inputRef.value.selectionStart
-//   let selectionEnd = inputRef.value.selectionEnd
-
-//   if (typeof selectionStart != 'number' || Number.isNaN(selectionStart) || selectionStart < 0)
-//     selectionStart = 0
-
-//   selectionStart = Math.min(inputRef.value.value.length, Math.max(0, selectionStart))
-
-//   if (typeof selectionEnd != 'number' || Number.isNaN(selectionEnd) || selectionEnd < 0)
-//     selectionEnd = 0
-
-//   selectionEnd = Math.min(inputRef.value.value.length, Math.max(0, selectionEnd))
-
-//   const selectedText = inputRef.value.value.substring(selectionStart, selectionEnd)
-
-//   rect.value = inputRef.value.getBoundingClientRect()
-
-//   const fakeSelectionContainer = document.createElement('div')
-//   fakeSelectionContainer.style.position = 'absolute'
-//   fakeSelectionContainer.style.top = `${rect.value.top}px`
-//   fakeSelectionContainer.style.left = `${rect.value.left}px`
-//   fakeSelectionContainer.style.width = `${rect.value.width}px`
-//   fakeSelectionContainer.style.height = `${rect.value.height}px`
-//   fakeSelectionContainer.textContent = inputRef.value.value
-//   fakeSelectionContainer.contentEditable = 'true'
-//   document.body.appendChild(fakeSelectionContainer)
-// }
-
-async function attachTooltipFloating() {
-  if (tooltipRef.value) {
-    const { x, y, strategy } = await computePosition(
-      virtualElement.value,
-      tooltipRef.value,
-      {
-        strategy: 'fixed',
-        placement: 'right-end',
-        middleware: [
-          flip(),
-          offset({
-            mainAxis: 4,
-          }),
-        ],
-      },
-    )
-
-    tooltipRef.value.style.position = strategy
-    tooltipRef.value.style.left = `${x}px`
-    tooltipRef.value.style.top = `${y}px`
-  }
-}
-
-async function attachPopoverFloating() {
-  if (popoverRef.value) {
-    const { x, y, strategy } = await computePosition(
-      virtualElement.value,
-      popoverRef.value,
-      {
-        strategy: 'fixed',
-        placement: 'bottom-start',
-        middleware: [
-          flip(),
-        ],
-      },
-    )
-
-    popoverRef.value.style.position = strategy
-    popoverRef.value.style.left = `${x}px`
-    popoverRef.value.style.top = `${y}px`
-  }
-}
 
 async function paraphraseText() {
   try {
@@ -142,7 +67,7 @@ async function paraphraseSelection(selection: string) {
 }
 
 function reselectElement() {
-  setSelection()
+
 }
 
 function handleBlur() {
@@ -188,23 +113,15 @@ function handleClickApply() {
 }
 
 function handleMouseUp(element: HTMLElement) {
-  selection = window.getSelection()
+  const selection = getSelection(element)
 
-
-  if (!selection?.rangeCount || selection.toString().length === 0)
+  if (selection.start === 0 && selection.end === 0 && selection.text === '')
     return status.value = 'initial'
-
-  getSelection(element)
-  
-  const range = selection.getRangeAt(0)
-
-  rect.value = range.getBoundingClientRect()
-  childRects.value = Array.from(range.getClientRects())
 
   status.value = 'tooltip'
 
   nextTick(() => {
-    attachTooltipFloating()
+    attachFloating(virtualElement.value, tooltipRef.value!)
   })
 }
 
@@ -227,20 +144,30 @@ async function handleOpenPopover() {
     console.error(error)
   }
 
-  nextTick(attachPopoverFloating)
+  nextTick(() => {
+    attachFloating(virtualElement.value, popoverRef.value!, {
+      placement: 'bottom',
+    })
+  })
 }
 
 onMounted(() => {
   document.addEventListener('selectionchange', () => {
-    selection = window.getSelection()
+    const selectionRect = getSelectionRect()
 
-    if (!selection?.rangeCount || selection.toString().length === 0)
-      return
+    if (!selectionRect.rect)
+      return (status.value = 'initial')
 
-    const range = selection.getRangeAt(0)
+    rect.value = new DOMRect(
+      selectionRect.rect.left,
+      selectionRect.rect.top,
+      selectionRect.rect.width,
+      selectionRect.rect.height,
+    )
 
-    rect.value = range.getBoundingClientRect()
-    childRects.value = Array.from(range.getClientRects())
+    childRects.value = selectionRect.children.map(
+      child => new DOMRect(child.left, child.top, child.width, child.height),
+    )
   })
 
   document.addEventListener('mousemove', (e) => {
@@ -279,7 +206,7 @@ onMounted(() => {
       :class="$style.paraphraserOutPutRight"
       contenteditable
       @blur="handleBlur"
-      @mouseup="handleMouseUp()"
+      @mouseup="handleMouseUp(outPutRef!)"
     >
       <span v-if="paraphraseOutput" :class="$style.paraphraseOutput">
         {{ paraphraseOutput }}
@@ -301,9 +228,11 @@ onMounted(() => {
       <textarea
         id="textArea"
         ref="textAreaRef"
+        v-model="paraphraseOutput"
         name="textArea"
         :class="$style.paraphraserTextarea"
         placeholder="textarea"
+        @mouseup="handleMouseUp(textAreaRef!)"
       />
     </div>
 
