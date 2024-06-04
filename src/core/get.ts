@@ -133,6 +133,7 @@ export function getSelectionRect(element?: HTMLElement): GetSelectionRectResult 
 
   function processRect(domRect: DOMRect): Rect {
     let _rect = domRect.toJSON()
+    
     if (isInputOrTextarea(_element))
       _rect = createRelativeRect(_rect, _element.scrollLeft, _element.scrollTop)
 

@@ -30,82 +30,11 @@ export function setSelectionInputOrTextarea(element: HTMLElement, options: SetSe
   return el.value.slice(deepOptions.start, deepOptions.end)
 }
 
-export function setContentEditableSelection(element: HTMLElement, options: SetSelectionOptions) {
-  const deepOptions = defu(options, {})
-
-  element.focus()
-
-  const selection = window.getSelection()
-
-  if (selection) {
-    let charCount = 0
-    let startNode: Node | undefined
-    let startOffset = 0
-    let endNode: Node | undefined
-    let endOffset = 0
-
-    function traverseNodes(node: Node) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const nextCharCount = charCount + Number(node.textContent?.length)
-
-        if (!startNode && deepOptions.start >= charCount && deepOptions.start <= nextCharCount) {
-          startNode = node
-          startOffset = deepOptions.start - charCount
-        }
-
-        if (!endNode && deepOptions.end >= charCount && deepOptions.end <= nextCharCount) {
-          endNode = node
-          endOffset = deepOptions.end - charCount
-        }
-
-        charCount = nextCharCount
-      }
-      else if (node.nodeType === Node.ELEMENT_NODE) {
-        for (let i = 0; i < node.childNodes.length && !endNode; i++)
-          traverseNodes(node.childNodes[i])
-      }
-    }
-
-    traverseNodes(element)
-
-    const range = document.createRange()
-
-    if (startNode && endNode && startOffset !== undefined && endOffset !== undefined) {
-      range.setStart(startNode, startOffset)
-      range.setEnd(endNode, endOffset)
-
-      selection.removeAllRanges()
-      selection.addRange(range)
-
-      return selection.toString()
-    }
-  }
-
-  return ''
-}
-
 export function setNativeSelection() {
 
 }
-export function setSelection(element: HTMLElement, options: SetSelectionOptions) {
-  const deepOptions = defu(options, {})
 
-  let selectedText = ''
-
-  element.focus()
-
-  if (isInputOrTextarea(element)) {
-    selectedText = setSelectionInputOrTextarea(
-      element as HTMLInputElement | HTMLTextAreaElement,
-      { start: deepOptions.start, end: deepOptions.end, direction: deepOptions.direction },
-    )
-  }
-  else { selectedText = setContentEditableSelection(element, { start: deepOptions.start, end: deepOptions.end }) }
-
-  return selectedText
-}
-
-export function setSelectionNode(element: HTMLElement, options?: SetSelectionNodeOptions) {
+export function setSelectionNode(options?: SetSelectionNodeOptions) {
   const _options = defu(options, {})
 
   const selection = window.getSelection()
@@ -144,7 +73,7 @@ function compareAndSortNodes(startNode: Node, startOffset: number, endNode: Node
   return [startNode, startOffset, endNode, endOffset]
 }
 
-export function setSelectionContenteditableElement(element: HTMLElement, options?: SetSelectionOptions) {
+export function setSelectionContenteditable(element: HTMLElement, options?: SetSelectionOptions) {
   const _options = defu(options, {})
 
   element.focus()
@@ -190,4 +119,24 @@ export function setSelectionContenteditableElement(element: HTMLElement, options
   }
 
   return ''
+}
+
+export function setSelection(element: HTMLElement, options: SetSelectionOptions) {
+  const deepOptions = defu(options, {})
+
+  let selectedText = ''
+
+  element.focus()
+
+  if (isInputOrTextarea(element)) {
+    selectedText = setSelectionInputOrTextarea(
+      element as HTMLInputElement | HTMLTextAreaElement,
+      { start: deepOptions.start, end: deepOptions.end, direction: deepOptions.direction },
+    )
+  }
+  else { 
+    selectedText = setSelectionContenteditable(element, { start: deepOptions.start, end: deepOptions.end }) 
+  }
+
+  return selectedText
 }

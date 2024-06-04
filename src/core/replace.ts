@@ -1,4 +1,4 @@
-import { setContentEditableSelection } from './set'
+import { setSelectionContenteditable } from './set'
 import { isInputOrTextarea } from './utils'
 
 interface ReplaceOptions {
@@ -18,7 +18,7 @@ export function replaceInputOrTextareaSelection(element: HTMLElement, options: R
 }
 
 export function replaceContentEditableSelection(element: HTMLElement, options: ReplaceOptions) {
-  setContentEditableSelection(element, {
+  setSelectionContenteditable(element, {
     start: options.start,
     end: options.end,
   })

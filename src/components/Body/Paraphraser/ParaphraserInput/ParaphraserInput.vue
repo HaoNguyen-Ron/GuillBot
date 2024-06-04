@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
-import { computePosition, flip, offset } from '@floating-ui/dom'
 import { openaiApi } from '@/api/openai'
 
 import pop from '@/assets/images/pop.png'
@@ -11,7 +10,7 @@ import right from '@/assets/images/chevron-right.png'
 import apply from '@/assets/images/apply.png'
 import logo from '@/assets/images/logo-sgroup.png'
 
-import { setSelection, getSelection } from '@/core'
+import { getSelection, getSelectionRect, setSelection } from '@/core'
 import { attachFloating } from '@/core/floating'
 
 const paraphraseInput = ref('')
@@ -68,13 +67,21 @@ async function paraphraseSelection(selection: string) {
 }
 
 function reselectElement() {
-
+  if (!selection?.anchorNode || !selection.focusNode)
+    return
+  const range = document.createRange()
+  range.setStart(selection?.anchorNode, selection?.anchorOffset || 0)
+  range.setEnd(selection?.focusNode, selection?.focusOffset || 0)
+  selection.removeAllRanges()
+  selection.addRange(range)
 }
 
 function handleBlur() {
   if ((outPutRef.value && checkMouseInElement(outPutRef.value))
     || (popoverRef.value && checkMouseInElement(popoverRef.value))
     || (tooltipRef.value && checkMouseInElement(tooltipRef.value))
+    || (inputRef.value && checkMouseInElement(inputRef.value))
+    || (textAreaRef.value && checkMouseInElement(textAreaRef.value))
   ) {
     reselectElement()
   }
@@ -86,14 +93,15 @@ function handleBlur() {
 }
 
 function checkMouseInElement(element: HTMLElement) {
-  const elementRect = element.getBoundingClientRect()
+  if (!element?.getBoundingClientRect())
+    return
 
-  return (
-    mousePosition.value.x >= elementRect.left
-    && mousePosition.value.x <= elementRect.right
-    && mousePosition.value.y >= elementRect.top
-    && mousePosition.value.y <= elementRect.bottom
-  )
+  const elementBound = element.getBoundingClientRect()
+
+  return mousePosition.value.x >= elementBound.left
+    && mousePosition.value.x <= elementBound.right
+    && mousePosition.value.y >= elementBound.top
+    && mousePosition.value.y <= elementBound.bottom
 }
 
 function handleClickApply() {
@@ -116,9 +124,8 @@ function handleClickApply() {
 function handleMouseUp(element: HTMLElement) {
   const selection = getSelection(element)
 
-  console.log('««««« selection »»»»»', selection);
-
-  if(selection.start === 0 && selection.end === 0 && selection.text === '') return status.value = 'initial'
+  if (selection.start === 0 && selection.end === 0 && selection.text === '')
+    return status.value = 'initial'
 
   status.value = 'tooltip'
 
@@ -154,17 +161,23 @@ async function handleOpenPopover() {
 }
 
 onMounted(() => {
-  // document.addEventListener('selectionchange', () => {
-  //   selection = window.getSelection()
+  document.addEventListener('selectionchange', () => {
+    const selectionRect = getSelectionRect()
 
-  //   if (!selection?.rangeCount || selection.toString().length === 0)
-  //     return status.value = 'initial'
+    if (!selectionRect.rect)
+      return (status.value = 'initial')
 
-  //   const range = selection.getRangeAt(0)
+    rect.value = new DOMRect(
+      selectionRect.rect.left,
+      selectionRect.rect.top,
+      selectionRect.rect.width,
+      selectionRect.rect.height,
+    )
 
-  //   rect.value = range.getBoundingClientRect()
-  //   childRects.value = Array.from(range.getClientRects())
-  // })
+    childRects.value = selectionRect.children.map(
+      child => new DOMRect(child.left, child.top, child.width, child.height),
+    )
+  })
 
   document.addEventListener('mousemove', (e) => {
     mousePosition.value.x = e.clientX
@@ -224,8 +237,8 @@ onMounted(() => {
       <textarea
         id="textArea"
         ref="textAreaRef"
-        name="textArea"
         v-model="paraphraseOutput"
+        name="textArea"
         :class="$style.paraphraserTextarea"
         placeholder="textarea"
         @mouseup="handleMouseUp(textAreaRef!)"
