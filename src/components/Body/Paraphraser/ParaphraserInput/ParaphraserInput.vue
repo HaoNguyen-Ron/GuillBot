@@ -10,7 +10,7 @@ import right from '@/assets/images/chevron-right.png'
 import apply from '@/assets/images/apply.png'
 import logo from '@/assets/images/logo-sgroup.png'
 
-import { getSelection, getSelectionRect, setSelection } from '@/core'
+import { getNativeSelection, getSelection, getSelectionRect, isInputOrTextarea, setSelection, setSelectionNode } from '@/core'
 import { attachFloating } from '@/core/floating'
 
 const paraphraseInput = ref('')
@@ -22,6 +22,7 @@ const popoverRef = ref<HTMLElement>()
 const tooltipRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
 const textAreaRef = ref<HTMLTextAreaElement>()
+const currentElementRef = ref<HTMLElement>()
 
 type SelectionStatus = 'initial' | 'tooltip' | 'popover'
 
@@ -66,30 +67,85 @@ async function paraphraseSelection(selection: string) {
   }
 }
 
-function reselectElement() {
-  if (!selection?.anchorNode || !selection.focusNode)
-    return
-  const range = document.createRange()
-  range.setStart(selection?.anchorNode, selection?.anchorOffset || 0)
-  range.setEnd(selection?.focusNode, selection?.focusOffset || 0)
-  selection.removeAllRanges()
-  selection.addRange(range)
-}
+// function reselectElement() {
+//   if (!selection?.anchorNode || !selection.focusNode)
+//     return
+//   const range = document.createRange()
+//   range.setStart(selection?.anchorNode, selection?.anchorOffset || 0)
+//   range.setEnd(selection?.focusNode, selection?.focusOffset || 0)
+//   selection.removeAllRanges()
+//   selection.addRange(range)
+// }
 
-function handleBlur() {
-  if ((outPutRef.value && checkMouseInElement(outPutRef.value))
-    || (popoverRef.value && checkMouseInElement(popoverRef.value))
-    || (tooltipRef.value && checkMouseInElement(tooltipRef.value))
-    || (inputRef.value && checkMouseInElement(inputRef.value))
-    || (textAreaRef.value && checkMouseInElement(textAreaRef.value))
-  ) {
-    reselectElement()
+// function handleBlur() {
+//   if ((outPutRef.value && checkMouseInElement(outPutRef.value))
+//     || (popoverRef.value && checkMouseInElement(popoverRef.value))
+//     || (tooltipRef.value && checkMouseInElement(tooltipRef.value))
+//     || (inputRef.value && checkMouseInElement(inputRef.value))
+//     || (textAreaRef.value && checkMouseInElement(textAreaRef.value))
+//   ) {
+//     reselectElement()
+//   }
+
+//   else {
+//     status.value = 'initial'
+//     replaceContent.value = ''
+//   }
+// }
+
+function reselectElement(element: HTMLElement) {
+  if (!element)
+    return status.value = 'initial'
+
+  const scrollTop = element.scrollTop
+  const scrollLeft = element.scrollLeft
+
+  if (isInputOrTextarea(element)) {
+    const selection = getSelection(element)
+
+    setSelection(element, {
+      start: selection.start,
+      end: selection.end,
+      direction: selection.direction || 'forward',
+    })
+  }
+  else {
+    setSelectionNode(element)
   }
 
-  else {
+  element.scrollTop = scrollTop
+  element.scrollLeft = scrollLeft
+}
+
+async function handleBlur(e: FocusEvent) {
+  const element = currentElementRef.value
+
+  if (!element)
+    return status.value = 'initial'
+
+  if (e.relatedTarget instanceof HTMLElement && e.relatedTarget.classList.contains('ql-clipboard'))
+    return
+
+  if (e.target !== currentElementRef.value)
+    return
+
+  const currentSelection = getSelection(element)
+  const currentNativeSelection = getNativeSelection()
+
+  if (!currentSelection.text)
+    return element.onblur?.(e)
+
+  const isMouseInBound = checkMouseInElement(element)
+
+  const selection = isInputOrTextarea(element) ? currentSelection : currentNativeSelection
+
+  if (isMouseInBound) {
+    reselectElement(selection)
+  } else {
     status.value = 'initial'
     replaceContent.value = ''
   }
+ 
 }
 
 function checkMouseInElement(element: HTMLElement) {
@@ -122,6 +178,8 @@ function handleClickApply() {
 }
 
 function handleMouseUp(element: HTMLElement) {
+  currentElementRef.value = element
+
   const selection = getSelection(element)
 
   if (selection.start === 0 && selection.end === 0 && selection.text === '')

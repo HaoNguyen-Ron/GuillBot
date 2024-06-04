@@ -34,7 +34,7 @@ export function setNativeSelection() {
 
 }
 
-export function setSelectionNode(options?: SetSelectionNodeOptions) {
+export function setSelectionNode(element?: HTMLElement, options?: SetSelectionNodeOptions) {
   const _options = defu(options, {})
 
   const selection = window.getSelection()

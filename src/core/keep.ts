@@ -39,7 +39,7 @@ export function keepSelection(element: HTMLElement, options?: KeepSelectionOptio
       // and the text node outside the <b> tag (" World")
       // you must set the range position to the correct node in order for it to work correctly
       setSelectionNode(element, {
-        nativeSelection: currentSelection as GetNativeSelectionResult,
+        nativeSelection: currentSelection as GetNativeSelectionResult
       })
     }
 

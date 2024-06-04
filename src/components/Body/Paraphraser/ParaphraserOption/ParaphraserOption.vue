@@ -115,6 +115,7 @@ const filterModeIsHidden = computed(() => {
 })
 
 onMounted(() => {
+  handleResize()
   window.addEventListener('resize', handleResize)
 })
 
