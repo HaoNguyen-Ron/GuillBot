@@ -30,11 +30,10 @@ export function setSelectionInputOrTextarea(element: HTMLElement, options: SetSe
   return el.value.slice(deepOptions.start, deepOptions.end)
 }
 
-export function setNativeSelection() {
-
-}
-
 export function setSelectionNode(element?: HTMLElement, options?: SetSelectionNodeOptions) {
+  if (!element)
+    return
+
   const _options = defu(options, {})
 
   const selection = window.getSelection()
@@ -134,8 +133,8 @@ export function setSelection(element: HTMLElement, options: SetSelectionOptions)
       { start: deepOptions.start, end: deepOptions.end, direction: deepOptions.direction },
     )
   }
-  else { 
-    selectedText = setSelectionContenteditable(element, { start: deepOptions.start, end: deepOptions.end }) 
+  else {
+    selectedText = setSelectionContenteditable(element, { start: deepOptions.start, end: deepOptions.end })
   }
 
   return selectedText
