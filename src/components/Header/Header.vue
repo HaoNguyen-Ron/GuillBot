@@ -36,6 +36,8 @@ import logo from '@/assets/images/quillbot-logo.png'
   justify-content: space-between;
   align-items: center;
   min-height: 46px;
+  position: relative;
+  z-index: 9999;
 }
 
 .headerLogoWrapper {

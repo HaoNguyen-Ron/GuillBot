@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
-import { openaiApi } from '@/api/openai'
+import createChat from '@/api/gemini'
 
 import pop from '@/assets/images/pop.png'
 import close from '@/assets/images/close.png'
@@ -23,6 +23,7 @@ const tooltipRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
 const textAreaRef = ref<HTMLTextAreaElement>()
 const currentElementRef = ref<HTMLElement>()
+const isLoading = ref(false)
 
 type SelectionStatus = 'initial' | 'tooltip' | 'popover'
 
@@ -31,7 +32,7 @@ const status = ref<SelectionStatus>('initial')
 let selection: Selection | null = null
 
 const rect = ref(new DOMRect())
-const childRects = ref < Array<DOMRect> >([])
+const childRects = ref<Array<DOMRect>>([])
 
 const virtualElement = ref({
   getBoundingClientRect() {
@@ -48,22 +49,32 @@ const mousePosition = ref({
 })
 
 async function paraphraseText() {
+  isLoading.value = true
+
   try {
-    paraphraseOutput.value = await openaiApi.getParaphraseFullContent(paraphraseInput.value)
+    paraphraseOutput.value = await createChat.getParaphraseFullContent(paraphraseInput.value)
   }
   catch (error) {
     return paraphraseOutput.value = 'Error'
   }
+  finally {
+    isLoading.value = false
+  }
 }
 
 async function paraphraseSelection(selection: string) {
+  isLoading.value = true
+
   try {
-    const paraphrasedContent = await openaiApi.getParaphraseFullContent(selection)
+    const paraphrasedContent = await createChat.getParaphraseFullContent(selection)
 
     return paraphrasedContent
   }
   catch (error) {
     return paraphraseOutput.value = 'Error'
+  }
+  finally {
+    isLoading.value = false
   }
 }
 
@@ -242,7 +253,11 @@ onMounted(() => {
   <div :class="$style.paraphraserInputWrapper">
     <div :class="$style.paraphraserInputLeft">
       <div :class="$style.paraphraserInputTop">
-        <textarea id="paraphraser-input-box" v-model="paraphraseInput" placeholder="To rewrite text, enter or paste it here and press &quot;Paraphrase.&quot;" :class="$style.paraphraserInputTextarea" />
+        <textarea
+          id="paraphraser-input-box" v-model="paraphraseInput"
+          placeholder="To rewrite text, enter or paste it here and press &quot;Paraphrase.&quot;"
+          :class="$style.paraphraserInputTextarea"
+        />
       </div>
 
       <div :class="$style.paraphraserInputBottom">
@@ -275,7 +290,7 @@ onMounted(() => {
     </div>
 
     <!-------------------------------------- Input ----------------------------->
-    <div :class="$style.paraphraserOutputLabel">
+    <!-- <div :class="$style.paraphraserOutputLabel">
       <input
         id="inputId"
         ref="inputRef"
@@ -295,27 +310,18 @@ onMounted(() => {
         placeholder="textarea"
         @mouseup="handleMouseUp(textAreaRef!)"
       />
-    </div>
+    </div> -->
 
     <!-------------------------------------- tooltip and popover ----------------------------->
     <div
-      v-if="status === 'tooltip'"
-      id="tooltip"
-      ref="tooltipRef"
-      :class="$style.paraphraserTooltip"
-      @click="handleOpenPopover"
-      style="position: fixed;"
+      v-if="status === 'tooltip'" id="tooltip" ref="tooltipRef" :class="$style.paraphraserTooltip"
+      style="position: fixed;" @click="handleOpenPopover"
     >
       <img :src="logo" alt="S-paraphraser icon" style="width: 20px; height: 20px;">
     </div>
     <!----------------------------------->
 
-    <div
-      v-if="status === 'popover'"
-      ref="popoverRef"
-      :class="$style.paraphraserOutPutWrapper"
-      style="position: fixed;"
-    >
+    <div v-if="status === 'popover'" ref="popoverRef" :class="$style.paraphraserOutPutWrapper" style="position: fixed;">
       <div :class="$style.paraphraserOutPutHeader">
         <img :src="pop" alt="S-pop icon" style="width: 32px; height: 32px;">
 
@@ -372,253 +378,276 @@ onMounted(() => {
 
 <style lang="scss" module>
 .paraphraserInputWrapper {
-    display: flex;
-    justify-content:space-between;
-    background-color: var(--color-background-secondary);
-  }
+  display: flex;
+  justify-content: space-between;
+  background-color: var(--color-background-secondary);
+}
 
-  .paraphraserInputLeft {
-    flex: 1 1 50%;
-    background-color: white;
-    border-right: 3px solid var(--color-border-primary);
-  }
+.paraphraserInputLeft {
+  flex: 1 1 50%;
+  background-color: white;
+  border-right: 3px solid var(--color-border-primary);
+}
 
-  .paraphraserOutPutRight {
-    flex: 1 1 50%;
-    background-color: white;
-    padding: 30px 36px 8px 20px;
-  }
+.paraphraserOutPutRight {
+  flex: 1 1 50%;
+  background-color: white;
+  padding: 20px 36px 8px 20px;
+}
 
-  .paraphraserInputTop {
-    padding: 20px 36px 8px 20px;
-  }
+.paraphraserInputTop {
+  padding: 20px 36px 8px 20px;
+}
 
-  .paraphraserInputBottom {
-    padding: 8px 15px;
-    flex: 1 1 auto;
-    display: flex;
-    justify-content: space-between;
+.paraphraserInputBottom {
+  padding: 8px 15px;
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: space-between;
 
-  }
+}
 
-  .paraphraserInputTextarea {
-    width: 100%;
-    height: 368px;
-    border: none;
+.paraphraserInputTextarea {
+  width: 100%;
+  height: 368px;
+  border: none;
+  font-size: 16px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+  overflow-wrap: break-word;
+  line-height: 32px;
+  text-wrap: wrap;
+  word-break: break-word;
+  align-self: flex-start;
+
+  &::placeholder {
     font-size: 16px;
     font-family: 'Open Sans', sans-serif;
-    font-weight: 400;
-    overflow-wrap: break-word;
-    line-height:32px;
-    text-wrap: wrap;
-    word-break: break-word;
-    align-self: flex-start;
-
-    &::placeholder {
-      font-size: 16px;
-      font-family: 'Open Sans', sans-serif;
-      font-weight: 500;
-    }
-
-    &:focus {
-      outline: none;
-    }
+    font-weight: 500;
   }
 
-  .paraphraserInputUploadWrapper {
-    display: flex;
+  &:focus {
+    outline: none;
   }
+}
 
-  .paraphraserInputUpload {
-    visibility: hidden;
-    width: 0;
-    height: 0;
-    appearance: none;
-    overflow: hidden;
-    cursor: default;
-    text-overflow: ellipsis;
-    white-space: pre;
+.paraphraseOutput {
+  font-size: 16px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 500;
+  line-height: 32px;
+
+}
+
+.paraphraserInputUploadWrapper {
+  display: flex;
+}
+
+.paraphraserInputUpload {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  appearance: none;
+  overflow: hidden;
+  cursor: default;
+  text-overflow: ellipsis;
+  white-space: pre;
+}
+
+.paraphraserInputLabel {
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 16px;
+  user-select: text;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    color: var(--color-primary)
   }
+}
 
-  .paraphraserInputLabel {
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    line-height: 16px;
-    user-select: text;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.paraphraserInputIcon {
+  font-size: 20px;
+  line-height: 40px;
+}
 
-    &:hover {
-      color: var(--color-primary)
-    }
+.paraphraserInputBtn {
+  background-color: var(--color-primary);
+  padding: 5px 25px;
+  border-radius: 25px;
+  font-size: 17.5px;
+  font-weight: 700;
+  line-height: 30px;
+  color: var(--color-font-white);
+  min-height: 40px;
+  min-width: 64px;
+  text-align: center;
+
+  &:hover {
+    background-color: var(--color-hover-primary)
   }
+}
 
-  .paraphraserInputIcon {
-    font-size: 20px;
-    line-height: 40px;
-  }
+.paraphraserLoadingBtn {
+  background-color: var(--color-gray-light);
+  padding: 5px 25px;
+  border-radius: 25px;
+  font-size: 17.5px;
+  font-weight: 700;
+  line-height: 30px;
+  color: var(--color-font-white);
+  min-height: 40px;
+  min-width: 64px;
+  text-align: center;
+  user-select: none;
+  pointer-events: none;
+}
 
-  .paraphraserInputBtn {
-    background-color: var(--color-primary);
-    padding: 5px 25px;
-    border-radius: 25px;
-    font-size: 17.5px;
-    font-weight: 700;
-    line-height: 30px;
-    color: var(--color-font-white);
-    min-height: 40px;
-    min-width: 64px;
-    text-align: center;
+.paraphraserTooltip {
+  background-color: #ffffff;
+  color: #555555;
+  cursor: pointer;
+  padding: 8px;
+  border: 1px solid #555555;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  border-radius: 90px;
+  font-weight: 700;
+  z-index: 999;
+}
 
-    &:hover {
-      background-color: var(--color-hover-primary)
-    }
-  }
+.paraphraserOutPutWrapper {
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 480px;
+  box-shadow: 0px 6px 12px 0px #0000002E;
+  padding: 12px 12px 8px 12px;
+  border-radius: 12px;
+}
 
-  .paraphraserTooltip {
-    background-color: #ffffff;
-    color: #555555;
-    cursor: pointer;
-    padding: 8px;
-    border: 1px solid #555555;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    border-radius: 90px;
-    font-weight: 700;
-    z-index: 999;
-  }
+.paraphraserOutPutHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .paraphraserOutPutWrapper {
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    width: 480px;
-    box-shadow: 0px 6px 12px 0px #0000002E;
-    padding: 12px 12px 8px 12px;
-    border-radius: 12px;
-  }
+.paraphraserOutPutTitle {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: left;
+}
 
-  .paraphraserOutPutHeader {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+.paraphraserOutPutMain {
+  display: flex;
+  flex-direction: column;
+  padding: 0 16px;
+}
 
-  .paraphraserOutPutTitle {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 22px;
-    text-align: left;
-  }
+.paraphraserOutPutActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
 
-  .paraphraserOutPutMain {
-    display: flex;
-    flex-direction: column;
-    padding: 0 16px;
-  }
+.paraphraserOutputLabel {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 17px;
+  text-align: left;
+  color: #A9A9A9;
+  user-select: none;
+}
 
-  .paraphraserOutPutActions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-  }
+.paraphraserInput {
+  padding: 8px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  color: #555555;
+}
 
-  .paraphraserOutputLabel {
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 17px;
-    text-align: left;
-    color: #A9A9A9;
-    user-select: none;
-  }
+.paraphraserTextarea {
+  padding: 8px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  color: #555555;
+  resize: none;
+}
 
-  .paraphraserInput {
-    padding: 8px;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    text-align: left;
-    color: #555555;
-  }
+.paraphraserAction {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-  .paraphraserTextarea {
-    padding: 8px;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    text-align: left;
-    color: #555555;
-    resize: none;
-  }
+.paraphraserActionBtn {
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .paraphraserAction {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
+.paraphraserDesc {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 17px;
+  text-align: left;
+  color: #A9A9A9;
+  user-select: none;
+}
 
-  .paraphraserActionBtn {
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.paraphraserOutPutResult {
+  padding: 12px;
+  border-radius: 10px;
+  background: #F8F8F8;
+  min-height: 120px;
+  overflow-y: auto;
+}
 
-  .paraphraserDesc {
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 17px;
-    text-align: left;
-    color: #A9A9A9;
-    user-select: none;
-  }
+.paraphraserContent {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  color: #555555;
+}
 
-  .paraphraserOutPutResult {
-    padding: 12px;
-    border-radius: 10px;
-    background: #F8F8F8;
-    min-height: 120px;
-    overflow-y: auto;
-  }
+.paraphraserOutPutFooter {
+  padding: 0 16px 16px 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
 
-  .paraphraserContent {
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 22px;
-    text-align: left;
-    color: #555555;
-  }
+.paraphraserOutPutBtn {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px 8px 12px;
+  border-radius: 40px;
+  border: 1px solid #DADCE0;
+  height: 36px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  text-align: left;
+}
 
-  .paraphraserOutPutFooter {
-    padding: 0 16px 16px 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-  }
+.paraphraserBtnPrimary {
+  background: #4643DD;
+  color: #ffffff;
+}
 
-  .paraphraserOutPutBtn {
-    display: flex;
-    align-items: center;
-    padding: 8px 12px 8px 12px;
-    border-radius: 40px;
-    border: 1px solid #DADCE0;
-    height: 36px;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 20px;
-    text-align: left;
-  }
-
-  .paraphraserBtnPrimary {
-    background: #4643DD;
-    color: #ffffff;
-  }
-
-  .paraphraserBtnContent {
-    padding: 0 4px;
-  }
+.paraphraserBtnContent {
+  padding: 0 4px;
+}
 </style>

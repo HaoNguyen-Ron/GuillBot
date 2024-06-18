@@ -20,6 +20,7 @@
 
         <div :class="$style.paraphraserBodyRight">
           <ParaphraserSideBtnPremium />
+
           <ParaphraserSideBtn />
         </div>
       </div>
@@ -50,7 +51,7 @@
 
   .paraphraserBodyLeft {
     position: relative;
-    z-index: 3;
+    flex: 1;
   }
 
   .paraphraserMainBottom {

@@ -252,6 +252,7 @@ onBeforeUnmount(() => {
 
   .paraphraserDropDownWrapper {
     position: relative;
+    z-index: 9999;
   }
 
   .paraphraserDropDownBtnWrapper {
@@ -269,6 +270,7 @@ onBeforeUnmount(() => {
     box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 22px 0px;
     border-radius: 6px;
     gap: 8px;
+    background-color: white;
   }
 
   .paraphraserDropDownMode {

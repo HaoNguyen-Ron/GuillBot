@@ -8,6 +8,9 @@ dependencies:
   '@floating-ui/dom':
     specifier: ^1.6.5
     version: 1.6.5
+  '@google/generative-ai':
+    specifier: ^0.13.0
+    version: 0.13.0
   defu:
     specifier: ^6.1.4
     version: 6.1.4
@@ -751,6 +754,11 @@ packages:
 
   /@floating-ui/utils@0.2.2:
     resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
+    dev: false
+
+  /@google/generative-ai@0.13.0:
+    resolution: {integrity: sha512-F3rI52SbGS8bsFu4bWFfOPdtq91RsBzeVLsbJy/kt7zCuaBr28toR/8zS12zXjj6USIJd0rGeF2HsuPONUz+6w==}
+    engines: {node: '>=18.0.0'}
     dev: false
 
   /@humanwhocodes/config-array@0.11.14:
