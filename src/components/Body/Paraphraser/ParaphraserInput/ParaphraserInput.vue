@@ -23,7 +23,6 @@ const tooltipRef = ref<HTMLElement>()
 const inputRef = ref<HTMLInputElement>()
 const textAreaRef = ref<HTMLTextAreaElement>()
 const currentElementRef = ref<HTMLElement>()
-const isLoading = ref(false)
 
 type SelectionStatus = 'initial' | 'tooltip' | 'popover'
 
@@ -49,22 +48,15 @@ const mousePosition = ref({
 })
 
 async function paraphraseText() {
-  isLoading.value = true
-
   try {
     paraphraseOutput.value = await createChat.getParaphraseFullContent(paraphraseInput.value)
   }
   catch (error) {
     return paraphraseOutput.value = 'Error'
   }
-  finally {
-    isLoading.value = false
-  }
 }
 
 async function paraphraseSelection(selection: string) {
-  isLoading.value = true
-
   try {
     const paraphrasedContent = await createChat.getParaphraseFullContent(selection)
 
@@ -72,9 +64,6 @@ async function paraphraseSelection(selection: string) {
   }
   catch (error) {
     return paraphraseOutput.value = 'Error'
-  }
-  finally {
-    isLoading.value = false
   }
 }
 
